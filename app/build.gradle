@@ -13,10 +13,13 @@ model {
     }
     android.ndk {
         moduleName  = "gles3jni"
-        cppFlags.addAll(["-Werror", "-fno-rtti", "-fno-exceptions"])
-	CFlags.add("-Werror")
+        cppFlags.addAll(["-Werror", "-fno-rtti", "-fno-exceptions", "-std=c++11", "-DGLM_FORCE_RADIANS", "-DGLM_SWIZZLE"])
+//        cppFlags.addAll(["-DKTX"])
+	    CFlags.add("-Werror")
+        CFlags.add("-I${file("src/main/jni")}".toString())
+        cppFlags.add("-I${file("src/main/jni")}".toString())
         ldLibs.addAll(["log","GLESv3", "EGL"])
-        stl         = "stlport_static"
+        stl         = "gnustl_shared"
     }
     android.buildTypes {
         release {

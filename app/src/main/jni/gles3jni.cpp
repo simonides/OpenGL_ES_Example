@@ -23,10 +23,11 @@
 const Vertex QUAD[4] = {
     // Square with diagonal < 2 so that it fits in a [-1 .. 1]^2 square
     // regardless of rotation.
-    {{-0.7f, -0.7f}, {0x00, 0xFF, 0x00}},
-    {{ 0.7f, -0.7f}, {0x00, 0x00, 0xFF}},
-    {{-0.7f,  0.7f}, {0xFF, 0x00, 0x00}},
-    {{ 0.7f,  0.7f}, {0xFF, 0xFF, 0xFF}},
+    {{-0.7f, -0.7f, 0.f, 0.f}, {0, 0, 0}},
+    {{ 0.7f, -0.7f, 0.f, 0.f}, {125, 0, 255}},
+    {{-0.7f,  0.7f, 0.f, 0.f}, {255, 0, 0}},
+    {{ 0.7f,  0.7f, 0.f, 0.f}, {255, 0, 0}},
+
 };
 
 bool checkGlError(const char* funcName) {
@@ -55,7 +56,7 @@ GLuint createShader(GLenum shaderType, const char* src) {
         if (infoLogLen > 0) {
             GLchar* infoLog = (GLchar*)malloc(infoLogLen);
             if (infoLog) {
-                glGetShaderInfoLog(shader, infoLogLen, NULL, infoLog);
+                glGetShaderInfoLog(shader, infoLogLen, nullptr, infoLog);
                 ALOGE("Could not compile %s shader:\n%s\n",
                         shaderType == GL_VERTEX_SHADER ? "vertex" : "fragment",
                         infoLog);
@@ -162,7 +163,7 @@ void Renderer::calcSceneParams(unsigned int w, unsigned int h,
     const float aspect[2] = {dim[0] / dim[1], dim[1] / dim[0]};
     const float scene2clip[2] = {1.0f, aspect[0]};
     const int ncells[2] = {
-            NCELLS_MAJOR,
+            (int)NCELLS_MAJOR,
             (int)floorf(NCELLS_MAJOR * aspect[1])
     };
 
@@ -262,8 +263,6 @@ Java_com_android_gles3jni_GLES3JNILib_init(JNIEnv* env, jobject obj) {
     const char* versionStr = (const char*)glGetString(GL_VERSION);
     if (strstr(versionStr, "OpenGL ES 3.") && gl3stubInit()) {
         g_renderer = createES3Renderer();
-    } else if (strstr(versionStr, "OpenGL ES 2.")) {
-        g_renderer = createES2Renderer();
     } else {
         ALOGE("Unsupported OpenGL ES version");
     }
