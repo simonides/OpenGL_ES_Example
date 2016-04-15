@@ -18,6 +18,16 @@ namespace program {
                     GLboolean transpose);
 
     bool isInUse(GLuint programID);
+
+    GLuint createShader(GLenum shaderType, const char* src);
+
+    GLuint createProgram(const char* vtxSrc, const char* fragSrc);
+
+    void printGlString(const char* name, GLenum s);
+}
+
+namespace ogl{
+    bool checkGlError(const char* funcName);
 }
 
 

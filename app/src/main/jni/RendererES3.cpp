@@ -1,103 +1,14 @@
-/*
- * Copyright 2013 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 #include <glm/glm.hpp>
 #include <string>
 #include <sstream>
 
 #include "gles3jni.h"
+#include "Helper.h"
 #include <EGL/egl.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-#define STR(s) #s
-#define STRV(s) STR(s)
+#include "Renderer.h"
 
-#define POS_ATTRIB 0
-#define COLOR_ATTRIB 1
-#define SCALEROT_ATTRIB 2
-#define OFFSET_ATTRIB 3
-
-/*
- * #version 330 core
-
-// Input vertex data, different for all executions of this shader.
-layout(location = 0) in vec3 vertexPosition_modelspace;
-layout(location = 1) in vec3 vertexColor;
-
-// Output data ; will be interpolated for each fragment.
-out vec3 fragmentColor;
-// Values that stay constant for the whole mesh.
-uniform mat4 MVP;
-
-void main(){
-
-	// Output position of the vertex, in clip space : MVP * position
-	gl_Position =  MVP * vec4(vertexPosition_modelspace,1);
-
-	// The color of each vertex will be interpolated
-	// to produce the color of each fragment
-	fragmentColor = vertexColor;
-}
- */
-static const char VERTEX_SHADER[] =
-"#version 300 es\n"
-"layout(location=" STRV(POS_ATTRIB) ") in vec3 pos;\n"
-"layout(location=" STRV(COLOR_ATTRIB) ") in vec4 color;\n"
-//"layout(location=" STRV(SCALEROT_ATTRIB) ") in vec4 scaleRot;\n"
-// "layout(location=" STRV(OFFSET_ATTRIB) ") in vec2 offset;\n"
-
-" uniform mat4 projection;\n"
-" uniform mat4 view;\n"
-" uniform mat4 model;\n"
-
-    "out vec4 vColor;\n"
-    "void main() {\n"
-    //"    mat2 sr = mat2(scaleRot.xy, scaleRot.zw);\n"
-    "    gl_Position = vec4(pos, 1.0f);\n"
-    //"    gl_Position = vec4(sr*pos + offset, 0.0, 1.0);\n"
-    "    vColor = color;\n"
-    "}\n";
-
-
-
-/**
- * #version 330 core
-
-// Interpolated values from the vertex shaders
-in vec3 fragmentColor;
-
-// Ouput data
-out vec3 color;
-
-void main(){
-
-	// Output color = color specified in the vertex shader,
-	// interpolated between all 3 surrounding vertices
-	color = fragmentColor;
-
-}
- */
-static const char FRAGMENT_SHADER[] =
-    "#version 300 es\n"
-    "precision mediump float;\n"
-    "in vec4 vColor;\n"
-    "out vec4 outColor;\n"
-    "void main() {\n"
-    "    outColor = vColor;\n"
-    "}\n";
 
 class RendererES3: public Renderer {
 public:
@@ -114,10 +25,10 @@ private:
     virtual void unmapTransformBuf();
     virtual void draw(unsigned int numInstances);
 
-    const EGLContext mEglContext;
-    GLuint mProgram;
-    GLuint mVB[VB_COUNT];
-    GLuint mVBState;
+//    const EGLContext mEglContext;
+//    GLuint mProgram;
+//    GLuint mVB[VB_COUNT];
+//    GLuint mVBState;
 };
 
 Renderer* createES3Renderer() {
@@ -130,59 +41,56 @@ Renderer* createES3Renderer() {
 }
 
 RendererES3::RendererES3()
-:   mEglContext(eglGetCurrentContext()),
-    mProgram(0),
-    mVBState(0)
+//:   mEglContext(eglGetCurrentContext()),
+//    mProgram(0),
+//    mVBState(0)
 {
-    for (int i = 0; i < VB_COUNT; i++)
-        mVB[i] = 0;
+//    for (int i = 0; i < VB_COUNT; i++)
+//        mVB[i] = 0;
 }
 
 bool RendererES3::init() {
-
-     glm::vec2 vec2(2.f,2.f);
-//    std::string error("Using OpenGL ES 3.0 renderer"+ std::to_string(vec2.x));
-
-    std::ostringstream os ;
-    os << "vector: " << vec2.x << " ..........." ;
-    std::string test = os.str();
-
-    ALOGV(test.c_str());
-
-
-    mProgram = createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
-    if (!mProgram)
-        return false;
-
-    glGenBuffers(VB_COUNT, mVB);
-    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_INSTANCE]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(QUAD), &QUAD[0], GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_SCALEROT]);
-    glBufferData(GL_ARRAY_BUFFER, MAX_INSTANCES * 4 * sizeof(float), NULL, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_OFFSET]);
-    glBufferData(GL_ARRAY_BUFFER, MAX_INSTANCES * 2 * sizeof(float), NULL, GL_STATIC_DRAW);
-
-    glGenVertexArrays(1, &mVBState);
-    glBindVertexArray(mVBState);
-
-    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_INSTANCE]);
-    glVertexAttribPointer(POS_ATTRIB, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)offsetof(Vertex, pos));
-    glVertexAttribPointer(COLOR_ATTRIB, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (const GLvoid*)offsetof(Vertex, rgba));
-    glEnableVertexAttribArray(POS_ATTRIB);
-    glEnableVertexAttribArray(COLOR_ATTRIB);
-
-    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_SCALEROT]);
-    glVertexAttribPointer(SCALEROT_ATTRIB, 4, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
-    glEnableVertexAttribArray(SCALEROT_ATTRIB);
-    glVertexAttribDivisor(SCALEROT_ATTRIB, 1);
-
-    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_OFFSET]);
-    glVertexAttribPointer(OFFSET_ATTRIB, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), 0);
-    glEnableVertexAttribArray(OFFSET_ATTRIB);
-    glVertexAttribDivisor(OFFSET_ATTRIB, 1);
-
-    ALOGV("Using OpenGL ES 3.0 renderer");
-    return true;
+    return  true;
+//    glm::vec2 vec2(2.f,2.f);
+//    std::ostringstream os ;
+//    os << "vector: " << ToString(vec2.x) << " ..........." ;
+//    std::string test = os.str();
+//    ALOGV(test.c_str());
+//
+//
+//    mProgram = createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
+//    if (!mProgram)
+//        return false;
+//
+//    glGenBuffers(VB_COUNT, mVB);
+//    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_INSTANCE]);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(QUAD), &QUAD[0], GL_STATIC_DRAW);
+//    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_SCALEROT]);
+//    glBufferData(GL_ARRAY_BUFFER, MAX_INSTANCES * 4 * sizeof(float), NULL, GL_DYNAMIC_DRAW);
+//    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_OFFSET]);
+//    glBufferData(GL_ARRAY_BUFFER, MAX_INSTANCES * 2 * sizeof(float), NULL, GL_STATIC_DRAW);
+//
+//    glGenVertexArrays(1, &mVBState);
+//    glBindVertexArray(mVBState);
+//
+//    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_INSTANCE]);
+//    glVertexAttribPointer(POS_ATTRIB, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)offsetof(Vertex, pos));
+//    glVertexAttribPointer(COLOR_ATTRIB, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (const GLvoid*)offsetof(Vertex, rgba));
+//    glEnableVertexAttribArray(POS_ATTRIB);
+//    glEnableVertexAttribArray(COLOR_ATTRIB);
+//
+//    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_SCALEROT]);
+//    glVertexAttribPointer(SCALEROT_ATTRIB, 4, GL_FLOAT, GL_FALSE, 4*sizeof(float), 0);
+//    glEnableVertexAttribArray(SCALEROT_ATTRIB);
+//    glVertexAttribDivisor(SCALEROT_ATTRIB, 1);
+//
+//    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_OFFSET]);
+//    glVertexAttribPointer(OFFSET_ATTRIB, 2, GL_FLOAT, GL_FALSE, 2*sizeof(float), 0);
+//    glEnableVertexAttribArray(OFFSET_ATTRIB);
+//    glVertexAttribDivisor(OFFSET_ATTRIB, 1);
+//
+//    ALOGV("Using OpenGL ES 3.0 renderer");
+//    return true;
 }
 
 RendererES3::~RendererES3() {
@@ -192,61 +100,62 @@ RendererES3::~RendererES3() {
      * If the context exists, it must be current. This only happens when we're
      * cleaning up after a failed init().
      */
-    if (eglGetCurrentContext() != mEglContext)
-        return;
-    glDeleteVertexArrays(1, &mVBState);
-    glDeleteBuffers(VB_COUNT, mVB);
-    glDeleteProgram(mProgram);
+//    if (eglGetCurrentContext() != mEglContext)
+//        return;
+//    glDeleteVertexArrays(1, &mVBState);
+//    glDeleteBuffers(VB_COUNT, mVB);
+//    glDeleteProgram(mProgram);
 }
 
 float* RendererES3::mapOffsetBuf() {
-    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_OFFSET]);
-    return (float*)glMapBufferRange(GL_ARRAY_BUFFER,
-            0, MAX_INSTANCES * 2*sizeof(float),
-            GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+    return nullptr;
+//    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_OFFSET]);
+//    return (float*)glMapBufferRange(GL_ARRAY_BUFFER,
+//            0, MAX_INSTANCES * 2*sizeof(float),
+//            GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 }
 
 void RendererES3::unmapOffsetBuf() {
-    glUnmapBuffer(GL_ARRAY_BUFFER);
+//    glUnmapBuffer(GL_ARRAY_BUFFER);
 }
 
 float* RendererES3::mapTransformBuf() {
-    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_SCALEROT]);
-    return (float*)glMapBufferRange(GL_ARRAY_BUFFER,
-            0, MAX_INSTANCES * 4*sizeof(float),
-            GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+//    glBindBuffer(GL_ARRAY_BUFFER, mVB[VB_SCALEROT]);
+//    return (float*)glMapBufferRange(GL_ARRAY_BUFFER,
+//            0, MAX_INSTANCES * 4*sizeof(float),
+//            GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 }
 
 void RendererES3::unmapTransformBuf() {
-    glUnmapBuffer(GL_ARRAY_BUFFER);
+//    glUnmapBuffer(GL_ARRAY_BUFFER);
 }
 
 void RendererES3::draw(unsigned int numInstances) {
-   float horizontalAngle= 0.0f;
-   float verticalAngle=(0.0f);
-   glm::vec3 position(0.0f, 0.0f, 1.0f);
-   float fieldOfView=(50.0f);
-   float nearPlane=(1.51f);
-   float farPlane=(500.0f);
-   float viewportAspectRatio=(4.0f / 3.0f);
-    glm::mat4 orientation;
-    orientation = glm::rotate(orientation, glm::radians(verticalAngle), glm::vec3(1, 0, 0));
-    orientation = glm::rotate(orientation, glm::radians(horizontalAngle), glm::vec3(0, 1, 0));
-
-    glm::vec4 forward_4 = glm::inverse(orientation) * glm::vec4(0, 0, -1, 1);
-    glm::vec3 forward(forward_4);
-
-    glm::mat4 viewMatrix = glm::lookAt(position,
-                             position + forward,
-                             glm::vec3(0, 1, 0));
-
-    glm::mat4 projection =  glm::perspective(glm::radians(fieldOfView), viewportAspectRatio,
-                                             nearPlane, farPlane);
+//   float horizontalAngle= 0.0f;
+//   float verticalAngle=(0.0f);
+//   glm::vec3 position(0.0f, 0.0f, 1.0f);
+//   float fieldOfView=(50.0f);
+//   float nearPlane=(1.51f);
+//   float farPlane=(500.0f);
+//   float viewportAspectRatio=(4.0f / 3.0f);
+//    glm::mat4 orientation;
+//    orientation = glm::rotate(orientation, glm::radians(verticalAngle), glm::vec3(1, 0, 0));
+//    orientation = glm::rotate(orientation, glm::radians(horizontalAngle), glm::vec3(0, 1, 0));
+//
+//    glm::vec4 forward_4 = glm::inverse(orientation) * glm::vec4(0, 0, -1, 1);
+//    glm::vec3 forward(forward_4);
+//
+//    glm::mat4 viewMatrix = glm::lookAt(position,
+//                             position + forward,
+//                             glm::vec3(0, 1, 0));
+//
+//    glm::mat4 projection =  glm::perspective(glm::radians(fieldOfView), viewportAspectRatio,
+//                                             nearPlane, farPlane);
 //    shaders->setUniform("projection",projection);
 //    shaders->setUniform("view", viewMatrix);
 //    shaders->setUniform("model", inst.transform);
 
-    glUseProgram(mProgram);
-    glBindVertexArray(mVBState);
-    glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, numInstances);
+//    glUseProgram(mProgram);
+//    glBindVertexArray(mVBState);
+//    glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, numInstances);
 }
