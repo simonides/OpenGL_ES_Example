@@ -24,6 +24,8 @@ namespace program {
     GLuint createProgram(const char* vtxSrc, const char* fragSrc);
 
     void printGlString(const char* name, GLenum s);
+
+    GLint Attrib(GLuint programID, const GLchar *attribName);
 }
 
 namespace ogl{

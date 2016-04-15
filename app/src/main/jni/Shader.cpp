@@ -10,8 +10,8 @@
 const char* VERTEX_SHADER =
 "#version 300 es\n"
 //
-"layout(location=" STRV(POS_ATTRIB) ") in vec3 pos;\n"
-"layout(location=" STRV(COLOR_ATTRIB) ") in vec4 color;\n"
+"in vec3 pos;\n"
+"in vec3 color;\n"
 //
 "uniform mat4 projection;\n"
 "uniform mat4 view;\n"
@@ -22,7 +22,7 @@ const char* VERTEX_SHADER =
 "void main() {\n"
 "   mat4 MVP = model * view * projection;\n"
 "   gl_Position = MVP * vec4(pos, 1.0f);\n"
-"   vColor = color;\n"
+"   vColor = vec4(color, 1.0f);\n"
 "}\n";
 
 

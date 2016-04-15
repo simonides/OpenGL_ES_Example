@@ -17,11 +17,11 @@ static const float MaxVerticalAngle = 85.0f; //must be less than 90 to avoid gim
 Camera::Camera() :
         _horizontalAngle(0.0f),
         _verticalAngle(0.0f),
-        _position(0.0f, 0.0f, 5.0f),
+        _position(0.0f, 0.0f, 0.0f),
         _fieldOfView(50.0f),
         _nearPlane(0.01f),
         _farPlane(500.0f),
-        _viewportAspectRatio(4.0f / 3.0f)
+        _viewportAspectRatio(2.0f / 4.0f)
 {
 }
 

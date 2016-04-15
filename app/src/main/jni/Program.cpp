@@ -15,7 +15,7 @@ GLint program::GetUniformLocation(GLuint
                                   programID,
                                   const GLchar *uniformName)
 {
-    assert(!uniformName);
+    assert(uniformName != nullptr);
     GLint uniform = glGetUniformLocation(programID, uniformName);
     assert(uniform != -1);
     return uniform;
@@ -130,4 +130,11 @@ bool ::ogl::checkGlError(const char *funcName) {
 void ::program::printGlString(const char *name, GLenum s) {
     const char* v = (const char*)glGetString(s);
     ALOGV("GL %s: %s\n", name, v);
+}
+
+GLint program::Attrib(GLuint programID, const GLchar *attribName) {
+    assert(attribName != nullptr);
+    GLint attrib = glGetAttribLocation(programID, attribName);
+    assert(attrib != -1);
+    return attrib;
 }

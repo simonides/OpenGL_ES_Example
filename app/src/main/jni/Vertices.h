@@ -7,8 +7,7 @@
 
 #include <GLES3/gl3.h>
 
-extern const GLfloat cubePositions[];
+extern const GLfloat cubeColoredVertex[];
 extern const GLuint cubeIndices[];
-extern const GLfloat cubeColors[];
 
 #endif //OPENGL_ES_EXAMPLE_VERTICES_H

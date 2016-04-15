@@ -8,6 +8,8 @@
 
 #include <jni.h>
 #include <stdint.h>
+#include <GLES3/gl3.h>
+#include "Config.h"
 
 class Camera;
 
@@ -15,6 +17,7 @@ class Camera;
 class AppMain {
 public:
     AppMain();
+    void Init();
     void Step();
     void Update(float deltaTimeSec);
     void Render();
@@ -23,6 +26,13 @@ public:
 private:
     Camera* m_camera;
     uint64_t m_LastFrameNs;
+
+
+    GLuint m_programID;
+
+    GLuint vao;
+    GLuint vbo;
+    GLuint vio;
 
 };
 
