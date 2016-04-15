@@ -17,6 +17,7 @@
 #include <jni.h>
 #include <stdlib.h>
 #include <time.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "gles3jni.h"
 
@@ -29,6 +30,47 @@ const Vertex QUAD[4] = {
     {{ 0.7f,  0.7f, 0.f, 0.f}, {255, 0, 0}},
 
 };
+
+//// Our vertices. Three consecutive floats give a 3D vertex; Three consecutive vertices give a triangle.
+//// A cube has 6 faces with 2 triangles each, so this makes 6*2=12 triangles, and 12*3 vertices
+//static const GLfloat g_vertex_buffer_data[] = {
+//        -1.0f,-1.0f,-1.0f, // triangle 1 : begin
+//        -1.0f,-1.0f, 1.0f,
+//        -1.0f, 1.0f, 1.0f, // triangle 1 : end
+//        1.0f, 1.0f,-1.0f, // triangle 2 : begin
+//        -1.0f,-1.0f,-1.0f,
+//        -1.0f, 1.0f,-1.0f, // triangle 2 : end
+//        1.0f,-1.0f, 1.0f,
+//        -1.0f,-1.0f,-1.0f,
+//        1.0f,-1.0f,-1.0f,
+//        1.0f, 1.0f,-1.0f,
+//        1.0f,-1.0f,-1.0f,
+//        -1.0f,-1.0f,-1.0f,
+//        -1.0f,-1.0f,-1.0f,
+//        -1.0f, 1.0f, 1.0f,
+//        -1.0f, 1.0f,-1.0f,
+//        1.0f,-1.0f, 1.0f,
+//        -1.0f,-1.0f, 1.0f,
+//        -1.0f,-1.0f,-1.0f,
+//        -1.0f, 1.0f, 1.0f,
+//        -1.0f,-1.0f, 1.0f,
+//        1.0f,-1.0f, 1.0f,
+//        1.0f, 1.0f, 1.0f,
+//        1.0f,-1.0f,-1.0f,
+//        1.0f, 1.0f,-1.0f,
+//        1.0f,-1.0f,-1.0f,
+//        1.0f, 1.0f, 1.0f,
+//        1.0f,-1.0f, 1.0f,
+//        1.0f, 1.0f, 1.0f,
+//        1.0f, 1.0f,-1.0f,
+//        -1.0f, 1.0f,-1.0f,
+//        1.0f, 1.0f, 1.0f,
+//        -1.0f, 1.0f,-1.0f,
+//        -1.0f, 1.0f, 1.0f,
+//        1.0f, 1.0f, 1.0f,
+//        -1.0f, 1.0f, 1.0f,
+//        1.0f,-1.0f, 1.0f
+//};
 
 bool checkGlError(const char* funcName) {
     GLint err = glGetError();
@@ -281,3 +323,5 @@ Java_com_android_gles3jni_GLES3JNILib_step(JNIEnv* env, jobject obj) {
         g_renderer->render();
     }
 }
+
+

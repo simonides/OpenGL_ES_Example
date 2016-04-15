@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-#include "glm/glm.hpp"
+#include <glm/glm.hpp>
 #include <string>
+#include <sstream>
 
 #include "gles3jni.h"
 #include <EGL/egl.h>
+#include <glm/gtc/matrix_transform.hpp>
 
 #define STR(s) #s
 #define STRV(s) STR(s)
@@ -27,6 +29,7 @@
 #define COLOR_ATTRIB 1
 #define SCALEROT_ATTRIB 2
 #define OFFSET_ATTRIB 3
+
 /*
  * #version 330 core
 
@@ -50,11 +53,16 @@ void main(){
 }
  */
 static const char VERTEX_SHADER[] =
-    "#version 300 es\n"
-    "layout(location=" STRV(POS_ATTRIB) ") in vec3 pos;\n"
-    "layout(location=" STRV(COLOR_ATTRIB) ") in vec4 color;\n"
-    //"layout(location=" STRV(SCALEROT_ATTRIB) ") in vec4 scaleRot;\n"
-   // "layout(location=" STRV(OFFSET_ATTRIB) ") in vec2 offset;\n"
+"#version 300 es\n"
+"layout(location=" STRV(POS_ATTRIB) ") in vec3 pos;\n"
+"layout(location=" STRV(COLOR_ATTRIB) ") in vec4 color;\n"
+//"layout(location=" STRV(SCALEROT_ATTRIB) ") in vec4 scaleRot;\n"
+// "layout(location=" STRV(OFFSET_ATTRIB) ") in vec2 offset;\n"
+
+" uniform mat4 projection;\n"
+" uniform mat4 view;\n"
+" uniform mat4 model;\n"
+
     "out vec4 vColor;\n"
     "void main() {\n"
     //"    mat2 sr = mat2(scaleRot.xy, scaleRot.zw);\n"
@@ -132,10 +140,15 @@ RendererES3::RendererES3()
 
 bool RendererES3::init() {
 
-    glm::vec2 vec2(2.f,2.f);
+     glm::vec2 vec2(2.f,2.f);
 //    std::string error("Using OpenGL ES 3.0 renderer"+ std::to_string(vec2.x));
 
-//    ALOGV(vec2.y "");
+    std::ostringstream os ;
+    os << "vector: " << vec2.x << " ..........." ;
+    std::string test = os.str();
+
+    ALOGV(test.c_str());
+
 
     mProgram = createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
     if (!mProgram)
@@ -209,6 +222,30 @@ void RendererES3::unmapTransformBuf() {
 }
 
 void RendererES3::draw(unsigned int numInstances) {
+   float horizontalAngle= 0.0f;
+   float verticalAngle=(0.0f);
+   glm::vec3 position(0.0f, 0.0f, 1.0f);
+   float fieldOfView=(50.0f);
+   float nearPlane=(1.51f);
+   float farPlane=(500.0f);
+   float viewportAspectRatio=(4.0f / 3.0f);
+    glm::mat4 orientation;
+    orientation = glm::rotate(orientation, glm::radians(verticalAngle), glm::vec3(1, 0, 0));
+    orientation = glm::rotate(orientation, glm::radians(horizontalAngle), glm::vec3(0, 1, 0));
+
+    glm::vec4 forward_4 = glm::inverse(orientation) * glm::vec4(0, 0, -1, 1);
+    glm::vec3 forward(forward_4);
+
+    glm::mat4 viewMatrix = glm::lookAt(position,
+                             position + forward,
+                             glm::vec3(0, 1, 0));
+
+    glm::mat4 projection =  glm::perspective(glm::radians(fieldOfView), viewportAspectRatio,
+                                             nearPlane, farPlane);
+//    shaders->setUniform("projection",projection);
+//    shaders->setUniform("view", viewMatrix);
+//    shaders->setUniform("model", inst.transform);
+
     glUseProgram(mProgram);
     glBindVertexArray(mVBState);
     glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, numInstances);

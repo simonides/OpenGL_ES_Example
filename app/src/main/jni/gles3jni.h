@@ -24,6 +24,8 @@
 #include "gl3stub.h"
 #else
 #include <GLES3/gl3.h>
+#include <glm/detail/type_mat.hpp>
+
 #endif
 
 #define DEBUG 1
@@ -58,6 +60,8 @@
 // and translated to place them in scene space. Scene space is then
 // non-uniformly scaled to clip space. In practice the transforms are combined
 // so vertices go directly from model to clip space.
+
+
 
 struct Vertex {
     GLfloat pos[4];
