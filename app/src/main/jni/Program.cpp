@@ -133,6 +133,7 @@ void ::program::printGlString(const char *name, GLenum s) {
 }
 
 GLint program::Attrib(GLuint programID, const GLchar *attribName) {
+    ALOGV("Attribname: %s", attribName);
     assert(attribName != nullptr);
     GLint attrib = glGetAttribLocation(programID, attribName);
     assert(attrib != -1);

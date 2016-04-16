@@ -27,11 +27,14 @@ AppMain::AppMain() :
 }
 
 static const GLfloat g_vertex_buffer_data[] = {
-        -1.0f, -1.0f, 0.0f,
-        1.0f, -1.0f, 0.0f,
-        0.0f,  1.0f, 0.0f,
-        0.0f,  2.0f, -1.0f,
+        -1.0f, -1.0f, 0.0f,  0.f,0.f,1.f,
+        1.0f, -1.0f, 0.0f,   0.f,1.f,0.f,
+        0.0f,  1.0f, 0.0f,   0.f,0.f,0.f,
+        0.0f,  2.0f, -1.0f,  1.f,0.f,0.f,
 };
+
+
+
 
 static const GLuint g_vertex_index_buffer_data[] = {
         0, 1, 2,
@@ -47,57 +50,58 @@ void AppMain::Init() {
     m_programID = program::createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
 
 
-    // This will identify our vertex buffer
 
 // Generate 1 buffer, put the resulting identifier in vertexbuffer
-    glGenBuffers(1, &vertexbuffer);
-// The following commands will talk about our 'vertexbuffer' buffer
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-// Give our vertices to OpenGL.
-    glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeOfVertex, g_vertex_buffer_data, GL_STATIC_DRAW);
-    glVertexAttribPointer(
-            0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-            3,                  // size
-            GL_FLOAT,           // type
-            GL_FALSE,           // normalized?
-            0,                  // stride
-            (void*)0            // array buffer offset
-    );
+//    glGenBuffers(1, &vertexbuffer);
+//// The following commands will talk about our 'vertexbuffer' buffer
+//    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+//// Give our vertices to OpenGL.
+//    glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeOfVertex, g_vertex_buffer_data, GL_STATIC_DRAW);
+//    glVertexAttribPointer(
+//            0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+//            3,                  // size
+//            GL_FLOAT,           // type
+//            GL_FALSE,           // normalized?
+//            0,                  // stride
+//            (void*)0            // array buffer offset
+//    );
+//
+//    glGenBuffers(1, &vertexindexbuffer);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexindexbuffer);
+//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangleCount *  sizeOfIndexData , g_vertex_index_buffer_data, GL_STATIC_DRAW);
+//
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+//    checkGlError("error init");
 
-    glGenBuffers(1, &vertexindexbuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexindexbuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangleCount *  sizeOfIndexData , g_vertex_index_buffer_data, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    checkGlError("error init");
+    glGenVertexArrays(1,&vao);
+    glGenBuffers(1, &vbo);
+    glGenBuffers(1, &vio);
 
-//
-//    glGenVertexArrays(1,&vao);
-//    glGenBuffers(1, &vbo);
-//    glGenBuffers(1, &vio);
-//
-//    glBindVertexArray(vao);
-//
-//    glBindBuffer(GL_ARRAY_BUFFER,vbo);
-//    glBufferData(GL_ARRAY_BUFFER,  24 * 6 *sizeof(GLfloat), &cubeColoredVertex[0], GL_STATIC_DRAW);
+    glBindVertexArray(vao);
+    glBindBuffer(GL_ARRAY_BUFFER,vbo);
+    glBufferData(GL_ARRAY_BUFFER,   vertexCount * sizeOfVertex, g_vertex_buffer_data, GL_STATIC_DRAW);
+//    glBufferData(GL_ARRAY_BUFFER,   vertexCount * sizeOfVertex, &cubeColoredVertex[0], GL_STATIC_DRAW);
 //
 //
-//    auto posID = program::Attrib(m_programID, "pos");
-//    ALOGD("simon %d",posID );
-//    glEnableVertexAttribArray(posID);
-//    glVertexAttribPointer(posID, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat), nullptr);
+    auto posID = program::Attrib(m_programID, "pos");
+    ALOGD("simon %d",posID );
+    glEnableVertexAttribArray(posID);
+    glVertexAttribPointer(posID, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat),(void*)0);
+
+
+    auto colorID = program::Attrib(m_programID, "color");
+    glEnableVertexAttribArray(colorID);
+    glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_TRUE, 6*sizeof(GLfloat)
+            , reinterpret_cast<const GLvoid*>(3 * sizeof(GLfloat)));
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vio);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangleCount *  sizeOfIndexData, g_vertex_index_buffer_data, GL_STATIC_DRAW);
 //
-//
-//    auto colorID = program::Attrib(m_programID, "color");
-//    glEnableVertexAttribArray(colorID);
-//    glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat)
-//            , reinterpret_cast<const GLvoid*>(3 * sizeof(GLfloat)));
-//
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vio);
-//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 12 * 3 * sizeof(GLfloat), &cubeIndices[0], GL_STATIC_DRAW);
-//
-//    glBindVertexArray(0);
+//    glBindBuffer(GL_ARRAY_BUFFER, 0);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
     ALOGV("Initializing App finished.");
 }
 
@@ -128,7 +132,7 @@ void AppMain::Update(float deltaTimeSec) {
 //ALOGD("frametime: %f", test);
 // m_camera->offsetOrientation(0.f,test);
 
-    const GLfloat degreesPerSecond = 180.0f;
+    const GLfloat degreesPerSecond = 60.0f;
     degrees += deltaTimeSec * degreesPerSecond;
    // ALOGD("degrees: %f" , degrees);
 //    while(degrees > 360.0f) degrees -= 360.0f;
@@ -167,13 +171,15 @@ void AppMain::Render() {
     SetUniform(m_programID, "projection",   m_camera->projection() , false  );
 
     glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+//    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexindexbuffer);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexindexbuffer);
 // Draw the triangle !
+    glBindVertexArray(vao);
 //    glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
     glDrawElements(GL_TRIANGLES,  triangleCount*3, GL_UNSIGNED_INT, (void*)0 );
-    glDisableVertexAttribArray(0);
+    glBindVertexArray(0);
+//    glDisableVertexAttribArray(0);
 
 
 //    transform =

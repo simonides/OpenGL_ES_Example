@@ -31,12 +31,12 @@ private:
     uint64_t m_LastFrameNs;
 
     //********************************
-    GLuint vertexbuffer;
-    GLuint vertexindexbuffer;
+//    GLuint vertexbuffer;
+//    GLuint vertexindexbuffer;
 
     int vertexCount = 4;
     int triangleCount = 2;
-    int sizeOfVertex = 3* sizeof(GLfloat);
+    int sizeOfVertex = 6* sizeof(GLfloat);
     int sizeOfIndexData = 3* sizeof(GLuint);
 
 
