@@ -12,6 +12,7 @@
 
 #include <GLES3/gl3.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <EGL/egl.h>
 
 using namespace program;
 using namespace ogl;
@@ -23,43 +24,72 @@ AppMain::AppMain() :
     Init();
 
 }
+
+static const GLfloat g_vertex_buffer_data[] = {
+        -1.0f, -1.0f, 0.0f,
+        1.0f, -1.0f, 0.0f,
+        0.0f,  1.0f, 0.0f,
+};
+
 void AppMain::Init() {
     ALOGV("Initializing App...");
 
     glDisable(GL_CULL_FACE);
+    glFrontFace(GL_CCW);
 
     m_programID = program::createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
 
-    glGenVertexArrays(1,&vao);
-    glGenBuffers(1, &vbo);
-    glGenBuffers(1, &vio);
 
-    glBindVertexArray(vao);
+    // This will identify our vertex buffer
 
-    glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    glBufferData(GL_ARRAY_BUFFER,  24 * 6 *sizeof(GLfloat), &cubeColoredVertex[0], GL_STATIC_DRAW);
-
-
-    auto posID = program::Attrib(m_programID, "pos");
-    glEnableVertexAttribArray(posID);
-    glVertexAttribPointer(posID, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat), nullptr);
-
-
-    auto colorID = program::Attrib(m_programID, "color");
-    glEnableVertexAttribArray(colorID);
-    glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat)
-            , reinterpret_cast<const GLvoid*>(3 * sizeof(GLfloat)));
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vio);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 12 * 3 * sizeof(GLfloat), &cubeIndices[0], GL_STATIC_DRAW);
-
-    glBindVertexArray(0);
+// Generate 1 buffer, put the resulting identifier in vertexbuffer
+    glGenBuffers(1, &vertexbuffer);
+// The following commands will talk about our 'vertexbuffer' buffer
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+// Give our vertices to OpenGL.
+    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+    glVertexAttribPointer(
+            0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+            3,                  // size
+            GL_FLOAT,           // type
+            GL_FALSE,           // normalized?
+            0,                  // stride
+            (void*)0            // array buffer offset
+    );
+// Draw the triangle !
+//    glGenVertexArrays(1,&vao);
+//    glGenBuffers(1, &vbo);
+//    glGenBuffers(1, &vio);
+//
+//    glBindVertexArray(vao);
+//
+//    glBindBuffer(GL_ARRAY_BUFFER,vbo);
+//    glBufferData(GL_ARRAY_BUFFER,  24 * 6 *sizeof(GLfloat), &cubeColoredVertex[0], GL_STATIC_DRAW);
+//
+//
+//    auto posID = program::Attrib(m_programID, "pos");
+//    ALOGD("simon %d",posID );
+//    glEnableVertexAttribArray(posID);
+//    glVertexAttribPointer(posID, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat), nullptr);
+//
+//
+//    auto colorID = program::Attrib(m_programID, "color");
+//    glEnableVertexAttribArray(colorID);
+//    glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat)
+//            , reinterpret_cast<const GLvoid*>(3 * sizeof(GLfloat)));
+//
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vio);
+//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 12 * 3 * sizeof(GLfloat), &cubeIndices[0], GL_STATIC_DRAW);
+//
+//    glBindVertexArray(0);
     ALOGV("Initializing App finished.");
 }
 
 
 void AppMain::Resize(int w, int h) {
+    ALOGD("Resize called: %d, %d", w,h);
     m_camera->setViewportAspectRatio((float) w / (float) h);
+    glViewport(0, 0, w, h);
 }
 
 void AppMain::Step() {
@@ -91,24 +121,53 @@ void AppMain::Render() {
     glm::mat4 transform;
   transform =
           glm::translate(glm::mat4(), glm::vec3(0.f,0.f,-2))*
-    glm::scale(glm::mat4(1.f), glm::vec3(20.f,20.f,20.f));
+        glm::scale(glm::mat4(1.f), glm::vec3(0.5f,0.5f,0.5f));
 
     //transform = helper::Translate(glm::vec3(0.f,0.f,-2)) *
 //                                helper::Scale(glm::vec3(20.f,20.f,20.f));
 
     glUseProgram(m_programID);
 
-    SetUniform(m_programID, "model",        transform ,false  );
+    SetUniform(m_programID, "model",        transform ,true  );
     SetUniform(m_programID, "view",         viewMatrix ,false  );
     SetUniform(m_programID, "projection",   m_camera->projection() ,false  );
 
-    glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, 8 * 3, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);   //Unbind
-    //draw calls
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+// Draw the triangle !
+    glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+    glDisableVertexAttribArray(0);
+
+
+
+//    glBindVertexArray(vao);
+//    glDrawElements(GL_TRIANGLES, 8 * 3, GL_UNSIGNED_INT, 0);
+//    glBindVertexArray(0);   //Unbind
+////    draw calls
+
     checkGlError("Renderer::render");
 
 }
 
 
+AppMain::~AppMain() {
+    ALOGE("Killing AppMain....");
+//    if (vbo) {
+//        glDeleteBuffers(1, &vbo);
+//        vbo = 0;
+//    }
 
+//    if (ubo_) {
+//        glDeleteBuffers(1, &ubo_);
+//        ubo_ = 0;
+//    }
+//    if (ibo_) {
+//        glDeleteBuffers(1, &ibo_);
+//        ibo_ = 0;
+//    }
+//    if (m_programID) {
+//        glDeleteProgram(m_programID);
+//        m_programID = 0;
+//    }
+
+}

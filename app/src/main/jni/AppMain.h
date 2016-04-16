@@ -17,6 +17,7 @@ class Camera;
 class AppMain {
 public:
     AppMain();
+    ~AppMain();
     void Init();
     void Step();
     void Update(float deltaTimeSec);
@@ -27,7 +28,7 @@ private:
     Camera* m_camera;
     uint64_t m_LastFrameNs;
 
-
+    GLuint vertexbuffer;
     GLuint m_programID;
 
     GLuint vao;

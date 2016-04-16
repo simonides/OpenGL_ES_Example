@@ -21,7 +21,7 @@ Camera::Camera() :
         _fieldOfView(50.0f),
         _nearPlane(0.01f),
         _farPlane(500.0f),
-        _viewportAspectRatio(2.0f / 4.0f)
+        _viewportAspectRatio(2.0f / 3.0f)
 {
 }
 
