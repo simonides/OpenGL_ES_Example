@@ -30,11 +30,22 @@ private:
     Camera* m_camera;
     uint64_t m_LastFrameNs;
 
+    //********************************
     GLuint vertexbuffer;
-    GLuint m_programID;
+    GLuint vertexindexbuffer;
+
+    int vertexCount = 3;
+    int triangleCount = 1;
+    int sizeOfVertex = 3* sizeof(GLfloat);
+    int sizeOfIndexData = 3* sizeof(GLuint);
+
 
     glm::mat4 transform;
+
+    //********************************
+
     float degrees;
+    GLuint m_programID;
     GLuint vao;
     GLuint vbo;
     GLuint vio;

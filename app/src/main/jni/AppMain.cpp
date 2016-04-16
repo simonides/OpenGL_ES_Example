@@ -19,8 +19,8 @@ using namespace ogl;
 
 
 AppMain::AppMain() :
-degrees(0.f),
-        m_camera(new Camera())
+    degrees(0.f),
+    m_camera(new Camera())
 {
     Init();
 
@@ -30,6 +30,10 @@ static const GLfloat g_vertex_buffer_data[] = {
         -1.0f, -1.0f, 0.0f,
         1.0f, -1.0f, 0.0f,
         0.0f,  1.0f, 0.0f,
+};
+
+static const GLuint g_vertex_index_buffer_data[] = {
+        0, 1, 2
 };
 
 void AppMain::Init() {
@@ -48,7 +52,7 @@ void AppMain::Init() {
 // The following commands will talk about our 'vertexbuffer' buffer
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 // Give our vertices to OpenGL.
-    glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeOfVertex, g_vertex_buffer_data, GL_STATIC_DRAW);
     glVertexAttribPointer(
             0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
             3,                  // size
@@ -57,7 +61,16 @@ void AppMain::Init() {
             0,                  // stride
             (void*)0            // array buffer offset
     );
-// Draw the triangle !
+
+    glGenBuffers(1, &vertexindexbuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexindexbuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangleCount * sizeOfIndexData , g_vertex_index_buffer_data, GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    checkGlError("error init");
+
+//
 //    glGenVertexArrays(1,&vao);
 //    glGenBuffers(1, &vbo);
 //    glGenBuffers(1, &vio);
@@ -100,7 +113,7 @@ void AppMain::Step() {
 
     if (m_LastFrameNs > 0) {
         float dt = float(nowNs - m_LastFrameNs) / 1000.f / 1000.f / 1000.f;
-        dt = clamp(dt,0.001f,0.2f);
+        dt = clamp(dt,0.00001f,2.f);
         Update(dt);
         Render();
         //ALOGD(ToString(dt).c_str());
@@ -122,6 +135,7 @@ void AppMain::Update(float deltaTimeSec) {
     }
     transform = glm::rotate(glm::mat4(), glm::radians(degrees), glm::vec3(0,1,0));
 
+//    m_camera->offsetOrientation(0.f, degreesPerSecond/4.f *deltaTimeSec);
 }
 
 void AppMain::Render() {
@@ -132,7 +146,7 @@ void AppMain::Render() {
                                        m_camera->position() + m_camera->forward(),
                                        m_camera->up());
 
-    viewMatrix =  m_camera->orientation() * glm::translate(glm::mat4(), -m_camera->position());
+//    viewMatrix =  m_camera->orientation() * glm::translate(glm::mat4(), -m_camera->position());
 
 
 
@@ -152,8 +166,11 @@ void AppMain::Render() {
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexindexbuffer);
 // Draw the triangle !
-    glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+//    glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+    glDrawElements(GL_TRIANGLES,  3, GL_UNSIGNED_INT, (void*)0 );
     glDisableVertexAttribArray(0);
 
 
