@@ -19,6 +19,7 @@ using namespace ogl;
 
 
 AppMain::AppMain() :
+        mEglContext(eglGetCurrentContext()),
         degrees(0.f),
         degreesY(0.f),
     m_camera(new Camera())

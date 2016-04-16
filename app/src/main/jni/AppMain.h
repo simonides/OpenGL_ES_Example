@@ -11,6 +11,7 @@
 #include <GLES3/gl3.h>
 #include <glm/detail/type_mat.hpp>
 #include <glm/detail/type_mat4x4.hpp>
+#include <EGL/egl.h>
 #include "Config.h"
 
 class Camera;
@@ -27,6 +28,8 @@ public:
     void Resize(int w, int h);
 
 private:
+    const EGLContext mEglContext;
+
     Camera* m_camera;
     uint64_t m_LastFrameNs;
 
