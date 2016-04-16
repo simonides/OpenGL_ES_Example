@@ -9,6 +9,8 @@
 #include <jni.h>
 #include <stdint.h>
 #include <GLES3/gl3.h>
+#include <glm/detail/type_mat.hpp>
+#include <glm/detail/type_mat4x4.hpp>
 #include "Config.h"
 
 class Camera;
@@ -31,6 +33,8 @@ private:
     GLuint vertexbuffer;
     GLuint m_programID;
 
+    glm::mat4 transform;
+    float degrees;
     GLuint vao;
     GLuint vbo;
     GLuint vio;

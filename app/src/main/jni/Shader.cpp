@@ -15,8 +15,7 @@ const char* VERTEX_SHADER =
 "uniform mat4 model;\n"
 //
 "void main(){\n"
-"   mat4 MVP = model * view * projection;\n"
-"   gl_Position = vec4(vertexPosition_modelspace, 1.0f);\n"
+"   gl_Position = projection * view * model * vec4(vertexPosition_modelspace, 1.0f);\n"
 "}\n";
 
 //"#version 300 es\n"

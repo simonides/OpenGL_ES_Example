@@ -40,7 +40,10 @@ std::string ToString(T value) {
     return os.str() ;
 }
 
-
+inline float clamp(float x, float a, float b)
+{
+    return x < a ? a : (x > b ? b : x);
+}
 
 // String replacement for defines
 #define STR(s) #s

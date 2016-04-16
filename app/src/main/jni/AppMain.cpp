@@ -19,6 +19,7 @@ using namespace ogl;
 
 
 AppMain::AppMain() :
+degrees(0.f),
         m_camera(new Camera())
 {
     Init();
@@ -87,7 +88,7 @@ void AppMain::Init() {
 
 
 void AppMain::Resize(int w, int h) {
-    ALOGD("Resize called: %d, %d", w,h);
+    //ALOGD("Resize called: %d, %d", w,h);
     m_camera->setViewportAspectRatio((float) w / (float) h);
     glViewport(0, 0, w, h);
 }
@@ -99,6 +100,7 @@ void AppMain::Step() {
 
     if (m_LastFrameNs > 0) {
         float dt = float(nowNs - m_LastFrameNs) / 1000.f / 1000.f / 1000.f;
+        dt = clamp(dt,0.001f,0.2f);
         Update(dt);
         Render();
         //ALOGD(ToString(dt).c_str());
@@ -107,6 +109,18 @@ void AppMain::Step() {
 }
 
 void AppMain::Update(float deltaTimeSec) {
+//float test = 0.1f*deltaTimeSec;
+//ALOGD("frametime: %f", test);
+// m_camera->offsetOrientation(0.f,test);
+
+    const GLfloat degreesPerSecond = 180.0f;
+    degrees += deltaTimeSec * degreesPerSecond;
+   // ALOGD("degrees: %f" , degrees);
+//    while(degrees > 360.0f) degrees -= 360.0f;
+    if(degrees > 360.f){
+        degrees -= 360.f;
+    }
+    transform = glm::rotate(glm::mat4(), glm::radians(degrees), glm::vec3(0,1,0));
 
 }
 
@@ -116,21 +130,25 @@ void AppMain::Render() {
 
     glm::mat4 viewMatrix = glm::lookAt(m_camera->position(),
                                        m_camera->position() + m_camera->forward(),
-                                       glm::vec3(0, 1, 0));
+                                       m_camera->up());
 
-    glm::mat4 transform;
-  transform =
-          glm::translate(glm::mat4(), glm::vec3(0.f,0.f,-2))*
-        glm::scale(glm::mat4(1.f), glm::vec3(0.5f,0.5f,0.5f));
+    viewMatrix =  m_camera->orientation() * glm::translate(glm::mat4(), -m_camera->position());
 
-    //transform = helper::Translate(glm::vec3(0.f,0.f,-2)) *
-//                                helper::Scale(glm::vec3(20.f,20.f,20.f));
+
+
+//    glm::mat4 transform;
+//  transform =
+//          glm::translate(glm::mat4(), glm::vec3(0.f,0.f,0.f))*
+//          glm::scale(glm::mat4(1.f), glm::vec3(0.5f,0.5f,0.5f));
+
+
+
 
     glUseProgram(m_programID);
 
-    SetUniform(m_programID, "model",        transform ,true  );
-    SetUniform(m_programID, "view",         viewMatrix ,false  );
-    SetUniform(m_programID, "projection",   m_camera->projection() ,false  );
+    SetUniform(m_programID, "model",        transform ,              false );
+    SetUniform(m_programID, "view",         viewMatrix ,             false );
+    SetUniform(m_programID, "projection",   m_camera->projection() , false  );
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
@@ -139,6 +157,16 @@ void AppMain::Render() {
     glDisableVertexAttribArray(0);
 
 
+//    transform =
+//            glm::translate(glm::mat4(), glm::vec3(2.f,2.f,0.f))*
+//            glm::scale(glm::mat4(1.f), glm::vec3(0.5f,0.5f,0.5f));
+//    SetUniform(m_programID, "model",        transform ,true  );
+//
+//    glEnableVertexAttribArray(0);
+//    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+//// Draw the triangle !
+//    glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+//    glDisableVertexAttribArray(0);
 
 //    glBindVertexArray(vao);
 //    glDrawElements(GL_TRIANGLES, 8 * 3, GL_UNSIGNED_INT, 0);
