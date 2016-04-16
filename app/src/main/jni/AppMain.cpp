@@ -99,9 +99,6 @@ void AppMain::Update(float deltaTimeSec) {
     transform = glm::rotate(glm::mat4(), glm::radians(degrees),  glm::vec3(0,1,0));
     transform = glm::rotate(transform, glm::radians(degreesY), glm::vec3(1,0,0));
 
-//    transform = glm::rotate(transform, glm::radians(degrees), glm::vec3(0,1,0));
-
-//    transform = glm::rotate(glm::mat4(), glm::radians(degreesY), glm::vec3(1,0,0));
 }
 
 void AppMain::Render() {
@@ -113,15 +110,6 @@ void AppMain::Render() {
                                        m_camera->up());
 
 
-
-//    glm::mat4 transform;
-//  transform =
-//          glm::translate(glm::mat4(), glm::vec3(0.f,0.f,0.f))*
-//          glm::scale(glm::mat4(1.f), glm::vec3(0.5f,0.5f,0.5f));
-
-
-
-
     glUseProgram(m_programID);
 
     SetUniform(m_programID, "model",        transform ,              false );
@@ -129,32 +117,11 @@ void AppMain::Render() {
     SetUniform(m_programID, "projection",   m_camera->projection() , false  );
 
     glEnableVertexAttribArray(0);
-//    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexindexbuffer);
-// Draw the triangle !
     glBindVertexArray(vao);
-//    glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
     glDrawElements(GL_TRIANGLES,  triangleCount*3, GL_UNSIGNED_INT, (void*)0 );
     glBindVertexArray(0);
-//    glDisableVertexAttribArray(0);
 
-
-//    transform =
-//            glm::translate(glm::mat4(), glm::vec3(2.f,2.f,0.f))*
-//            glm::scale(glm::mat4(1.f), glm::vec3(0.5f,0.5f,0.5f));
-//    SetUniform(m_programID, "model",        transform ,true  );
-//
-//    glEnableVertexAttribArray(0);
-//    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-//// Draw the triangle !
-//    glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
-//    glDisableVertexAttribArray(0);
-
-//    glBindVertexArray(vao);
-//    glDrawElements(GL_TRIANGLES, 8 * 3, GL_UNSIGNED_INT, 0);
-//    glBindVertexArray(0);   //Unbind
-////    draw calls
 
     checkGlError("Renderer::render");
 
