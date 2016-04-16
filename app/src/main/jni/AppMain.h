@@ -45,6 +45,7 @@ private:
     //********************************
 
     float degrees;
+    float degreesY;
     GLuint m_programID;
     GLuint vao;
     GLuint vbo;

@@ -19,7 +19,8 @@ using namespace ogl;
 
 
 AppMain::AppMain() :
-    degrees(0.f),
+        degrees(0.f),
+        degreesY(0.f),
     m_camera(new Camera())
 {
     Init();
@@ -80,10 +81,6 @@ void AppMain::Step() {
 
     if (m_LastFrameNs > 0) {
         float dt = float(nowNs - m_LastFrameNs) * 0.000000001f;
-       // ALOGD(ToString(dt).c_str());
-       // dt = clamp(dt,0.00001f,2.f);
-//        ALOGD(ToString(dt).c_str());
-
         Update(dt);
         Render();
     }
@@ -91,25 +88,24 @@ void AppMain::Step() {
 }
 
 void AppMain::Update(float deltaTimeSec) {
-//float test = 0.1f*deltaTimeSec;
-//ALOGD("frametime: %f", test);
-// m_camera->offsetOrientation(0.f,test);
-
     const GLfloat degreesPerSecond = 60.0f;
+    const GLfloat degreesPerSecondY = 30.0f;
     degrees += deltaTimeSec * degreesPerSecond;
-    ALOGD("degrees: %f" , degrees);
-    while(degrees > 360.0f) degrees -= 360.0f;
-//    if(degrees > 360.f){
-//
-//        degrees -= 360.f;
-//    }
-    transform = glm::rotate(glm::mat4(), glm::radians(degrees), glm::vec3(0,1,0));
+    degreesY += deltaTimeSec * degreesPerSecondY;
+    //ALOGD("degrees: %f" , degrees);
+    while(degrees > 360.0f) {degrees -= 360.0f;}
+    while(degreesY > 360.0f) {degreesY -= 360.0f;}
 
-//    m_camera->offsetOrientation(0.f, degreesPerSecond/4.f *deltaTimeSec);
+    transform = glm::rotate(glm::mat4(), glm::radians(degrees),  glm::vec3(0,1,0));
+    transform = glm::rotate(transform, glm::radians(degreesY), glm::vec3(1,0,0));
+
+//    transform = glm::rotate(transform, glm::radians(degrees), glm::vec3(0,1,0));
+
+//    transform = glm::rotate(glm::mat4(), glm::radians(degreesY), glm::vec3(1,0,0));
 }
 
 void AppMain::Render() {
-    glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
+    glClearColor(0.5f, 0.5f, 0.55f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 viewMatrix = glm::lookAt(m_camera->position(),
