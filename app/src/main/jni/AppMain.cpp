@@ -30,10 +30,12 @@ static const GLfloat g_vertex_buffer_data[] = {
         -1.0f, -1.0f, 0.0f,
         1.0f, -1.0f, 0.0f,
         0.0f,  1.0f, 0.0f,
+        0.0f,  2.0f, -1.0f,
 };
 
 static const GLuint g_vertex_index_buffer_data[] = {
-        0, 1, 2
+        0, 1, 2,
+        0, 1, 3
 };
 
 void AppMain::Init() {
@@ -64,7 +66,7 @@ void AppMain::Init() {
 
     glGenBuffers(1, &vertexindexbuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexindexbuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangleCount * sizeOfIndexData , g_vertex_index_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangleCount *  sizeOfIndexData , g_vertex_index_buffer_data, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -170,7 +172,7 @@ void AppMain::Render() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexindexbuffer);
 // Draw the triangle !
 //    glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
-    glDrawElements(GL_TRIANGLES,  3, GL_UNSIGNED_INT, (void*)0 );
+    glDrawElements(GL_TRIANGLES,  triangleCount*3, GL_UNSIGNED_INT, (void*)0 );
     glDisableVertexAttribArray(0);
 
 

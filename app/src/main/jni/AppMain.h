@@ -34,8 +34,8 @@ private:
     GLuint vertexbuffer;
     GLuint vertexindexbuffer;
 
-    int vertexCount = 3;
-    int triangleCount = 1;
+    int vertexCount = 4;
+    int triangleCount = 2;
     int sizeOfVertex = 3* sizeof(GLfloat);
     int sizeOfIndexData = 3* sizeof(GLuint);
 
