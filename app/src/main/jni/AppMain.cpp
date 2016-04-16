@@ -36,22 +36,31 @@ void AppMain::Init() {
 
     glBindVertexArray(vao);
 
-    glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    glBufferData(GL_ARRAY_BUFFER,  24 * 6 *sizeof(GLfloat), &cubeColoredVertex[0], GL_STATIC_DRAW);
+    int vertexCount = 24;
+    int sizePerVertex = 6 * sizeof(GLfloat);
+    int triangleCount = 12;
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER,  vertexCount * sizePerVertex, &cubeColoredVertex[0], GL_STATIC_DRAW);
 
 
     auto posID = program::Attrib(m_programID, "pos");
+    if(posID == -1) {
+        ALOGE("Couldn find attribute pos");
+    }
     glEnableVertexAttribArray(posID);
-    glVertexAttribPointer(posID, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat), nullptr);
+    glVertexAttribPointer(posID, 3, GL_FLOAT, GL_FALSE, sizePerVertex, nullptr);
 
 
     auto colorID = program::Attrib(m_programID, "color");
+    if(colorID == -1) {
+        ALOGE("Couldn find attribute color");
+    }
     glEnableVertexAttribArray(colorID);
-    glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat)
-            , reinterpret_cast<const GLvoid*>(3 * sizeof(GLfloat)));
+    glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_TRUE, sizePerVertex, reinterpret_cast<const GLvoid*>(3 * sizeof(GLfloat)));
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vio);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 12 * 3 * sizeof(GLfloat), &cubeIndices[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangleCount * 3 * sizeof(GLuint), &cubeIndices[0], GL_STATIC_DRAW);
 
     glBindVertexArray(0);
     ALOGV("Initializing App finished.");
@@ -89,25 +98,25 @@ void AppMain::Render() {
                                        glm::vec3(0, 1, 0));
 
     glm::mat4 transform;
-  transform =
-          glm::translate(glm::mat4(), glm::vec3(0.f,0.f,-2))*
-    glm::scale(glm::mat4(1.f), glm::vec3(20.f,20.f,20.f));
+    transform = glm::translate(glm::mat4(), glm::vec3(0.f,0.f,-2.f)) *
+                glm::scale(glm::mat4(1.f), glm::vec3(20.f,20.f,20.f));
 
     //transform = helper::Translate(glm::vec3(0.f,0.f,-2)) *
 //                                helper::Scale(glm::vec3(20.f,20.f,20.f));
 
     glUseProgram(m_programID);
 
-    SetUniform(m_programID, "model",        transform ,false  );
-    SetUniform(m_programID, "view",         viewMatrix ,false  );
+    SetUniform(m_programID, "model",        transform , false  );
+    SetUniform(m_programID, "view",         viewMatrix, false  );
     SetUniform(m_programID, "projection",   m_camera->projection() ,false  );
 
     glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, 8 * 3, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, 12 * 2, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);   //Unbind
     //draw calls
     checkGlError("Renderer::render");
 
+    eglSwapBuffer;
 }
 
 

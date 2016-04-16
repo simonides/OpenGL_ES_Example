@@ -21,7 +21,12 @@ const char* VERTEX_SHADER =
 //
 "void main() {\n"
 "   mat4 MVP = model * view * projection;\n"
-"   gl_Position = MVP * vec4(pos, 1.0f);\n"
+
+               // "   vec3 pos = MVP * vec4(pos, 1.0f);\n"
+
+               // "if(pos.x < 10 || pos.x > 10) { pos.x "
+               // " pos = vec3(0,0,0, 0);"
+                "   gl_Position = MVP * vec4(pos, 1.0f);;\n"
 "   vColor = vec4(color, 1.0f);\n"
 "}\n";
 
