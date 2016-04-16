@@ -26,53 +26,14 @@ AppMain::AppMain() :
 
 }
 
-static const GLfloat g_vertex_buffer_data[] = {
-        -1.0f, -1.0f, 0.0f,  0.f,0.f,1.f,
-        1.0f, -1.0f, 0.0f,   0.f,1.f,0.f,
-        0.0f,  1.0f, 0.0f,   0.f,0.f,0.f,
-        0.0f,  2.0f, -1.0f,  1.f,0.f,0.f,
-};
-
-
-
-
-static const GLuint g_vertex_index_buffer_data[] = {
-        0, 1, 2,
-        0, 1, 3
-};
 
 void AppMain::Init() {
     ALOGV("Initializing App...");
 
-    glDisable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
 
     m_programID = program::createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
-
-
-
-// Generate 1 buffer, put the resulting identifier in vertexbuffer
-//    glGenBuffers(1, &vertexbuffer);
-//// The following commands will talk about our 'vertexbuffer' buffer
-//    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-//// Give our vertices to OpenGL.
-//    glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeOfVertex, g_vertex_buffer_data, GL_STATIC_DRAW);
-//    glVertexAttribPointer(
-//            0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-//            3,                  // size
-//            GL_FLOAT,           // type
-//            GL_FALSE,           // normalized?
-//            0,                  // stride
-//            (void*)0            // array buffer offset
-//    );
-//
-//    glGenBuffers(1, &vertexindexbuffer);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vertexindexbuffer);
-//    glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangleCount *  sizeOfIndexData , g_vertex_index_buffer_data, GL_STATIC_DRAW);
-//
-//    glBindBuffer(GL_ARRAY_BUFFER, 0);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-//    checkGlError("error init");
 
 
     glGenVertexArrays(1,&vao);
@@ -81,7 +42,7 @@ void AppMain::Init() {
 
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    glBufferData(GL_ARRAY_BUFFER,   vertexCount * sizeOfVertex, g_vertex_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER,   vertexCount * sizeOfVertex, cubeColoredVertex, GL_STATIC_DRAW);
 //    glBufferData(GL_ARRAY_BUFFER,   vertexCount * sizeOfVertex, &cubeColoredVertex[0], GL_STATIC_DRAW);
 //
 //
@@ -97,7 +58,7 @@ void AppMain::Init() {
             , reinterpret_cast<const GLvoid*>(3 * sizeof(GLfloat)));
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vio);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangleCount *  sizeOfIndexData, g_vertex_index_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangleCount *  sizeOfIndexData, cubeIndices, GL_STATIC_DRAW);
 //
 //    glBindBuffer(GL_ARRAY_BUFFER, 0);
 //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -115,14 +76,16 @@ void AppMain::Resize(int w, int h) {
 void AppMain::Step() {
     timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
-    uint64_t nowNs = now.tv_sec * 1000 * 1000 * 1000 + now.tv_nsec;
+    uint64_t nowNs = now.tv_sec*1000000000ull + now.tv_nsec;
 
     if (m_LastFrameNs > 0) {
-        float dt = float(nowNs - m_LastFrameNs) / 1000.f / 1000.f / 1000.f;
-        dt = clamp(dt,0.00001f,2.f);
+        float dt = float(nowNs - m_LastFrameNs) * 0.000000001f;
+       // ALOGD(ToString(dt).c_str());
+       // dt = clamp(dt,0.00001f,2.f);
+//        ALOGD(ToString(dt).c_str());
+
         Update(dt);
         Render();
-        //ALOGD(ToString(dt).c_str());
     }
     m_LastFrameNs = nowNs;
 }
@@ -134,11 +97,12 @@ void AppMain::Update(float deltaTimeSec) {
 
     const GLfloat degreesPerSecond = 60.0f;
     degrees += deltaTimeSec * degreesPerSecond;
-   // ALOGD("degrees: %f" , degrees);
-//    while(degrees > 360.0f) degrees -= 360.0f;
-    if(degrees > 360.f){
-        degrees -= 360.f;
-    }
+    ALOGD("degrees: %f" , degrees);
+    while(degrees > 360.0f) degrees -= 360.0f;
+//    if(degrees > 360.f){
+//
+//        degrees -= 360.f;
+//    }
     transform = glm::rotate(glm::mat4(), glm::radians(degrees), glm::vec3(0,1,0));
 
 //    m_camera->offsetOrientation(0.f, degreesPerSecond/4.f *deltaTimeSec);
@@ -151,8 +115,6 @@ void AppMain::Render() {
     glm::mat4 viewMatrix = glm::lookAt(m_camera->position(),
                                        m_camera->position() + m_camera->forward(),
                                        m_camera->up());
-
-//    viewMatrix =  m_camera->orientation() * glm::translate(glm::mat4(), -m_camera->position());
 
 
 
