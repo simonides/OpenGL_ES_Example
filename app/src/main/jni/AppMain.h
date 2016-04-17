@@ -37,8 +37,6 @@ private:
 
     //********************************
 
-    //int vertexCountCube = 24;
-
     int vertexCount = 30;
     int triangleCount = 12 + 1 + 1; // cube + background + bird
     int cubeTriangleCount = 12;
@@ -58,10 +56,8 @@ private:
     GLuint vbo;
     GLuint vio;
 
-
     Texture m_backgroundTex;
     Texture m_birdTex;
-
 };
 
 

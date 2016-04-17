@@ -25,10 +25,11 @@ Texture texture::LoadTextureFromAssetManager(AAssetManager *assetManager, const 
     ktxResult = ktxLoadTextureM(textureData, textureDataSize, &tex.m_textureHandle, &tex.m_textureTarget,
                                 nullptr, &tex.m_isMipmapped, &glResult, 0, nullptr);
 
+    ALOGD("Ktx result first call: %d", ktxResult);
     ktxResult = ktxLoadTextureM(textureData, textureDataSize, &tex.m_textureHandle, &tex.m_textureTarget,
                                 nullptr, &tex.m_isMipmapped, &glResult, 0, nullptr);
 
-    ALOGV("Texture handle id: %d enum: %d", tex.m_textureHandle, tex.m_textureTarget);
+    ALOGD("Texture handle id: %d enum: %d", tex.m_textureHandle, tex.m_textureTarget);
     if (ktxResult != KTX_SUCCESS) {
         ALOGE("KTXLib couldn't load texture %s. Error: %d", fileName, ktxResult);
         assert(false);
