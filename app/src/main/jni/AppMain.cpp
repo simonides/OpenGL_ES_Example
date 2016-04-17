@@ -33,7 +33,7 @@ AppMain::AppMain() :
 void AppMain::Init() {
     ALOGV("Initializing App...");
 
-//    glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
 
     m_programID = program::createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
@@ -52,13 +52,13 @@ void AppMain::Init() {
     auto posID = program::Attrib(m_programID, "pos");
     ALOGD("simon %d",posID );
     glEnableVertexAttribArray(posID);
-    glVertexAttribPointer(posID, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat),(void*)0);
+    glVertexAttribPointer(posID, 3, GL_FLOAT, GL_FALSE, sizeOfVertex,(void*)0);
 
 
     auto colorID = program::Attrib(m_programID, "color");
     glEnableVertexAttribArray(colorID);
-    glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat)
-            , reinterpret_cast<const GLvoid*>(3 * sizeof(GLfloat)));
+    glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_FALSE, sizeOfVertex
+            , reinterpret_cast<const GLvoid*>(5 * sizeof(GLfloat)));
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vio);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangleCount *  sizeOfIndexData, cubeIndices, GL_STATIC_DRAW);
@@ -135,23 +135,17 @@ void AppMain::Render() {
     glDrawElements(GL_TRIANGLES,  3  , GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(36 * sizeof(GLuint)));
 
 
-
+    //draw cube
     SetUniform(m_programID, "model",      transform ,             false );
     SetUniform(m_programID, "view",       viewMatrix ,            false );
     SetUniform(m_programID, "projection", m_camera->projection(), false );
 
-    glEnableVertexAttribArray(0);
-    //draw cube
     glDrawElements(GL_TRIANGLES,  triangleCount*3 -3 , GL_UNSIGNED_INT, (void*)0 );
 
-    glm::mat4 orthoMat = glm::ortho (0.f,100.f,10.f,0.f,0.001f,1000.f);
-//    glm::mat4 Projection = glm::ortho( 0.0f, 800.0f, 600.0f, 0.0f,-5.0f, 5.0f);
 
-//    glm::mat4 Projection = glm::ortho( 0.0f, 800.0f, 600.0f, 0.0f,-5.0f, 5.0f);
-
+    glEnableVertexAttribArray(0);
     glBindVertexArray(0);
     checkGlError("Renderer::render");
-
 }
 
 
