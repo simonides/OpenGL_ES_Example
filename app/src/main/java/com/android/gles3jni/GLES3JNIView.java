@@ -17,6 +17,7 @@
 package com.android.gles3jni;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
@@ -34,8 +35,14 @@ class GLES3JNIView extends GLSurfaceView {
     private static final String TAG = "GLES3JNI";
     private static final boolean DEBUG = true;
 
+    static AssetManager assetManager;
+
+
     public GLES3JNIView(Context context) {
         super(context);
+
+        assetManager = context.getAssets();
+
         // Pick an EGLConfig with RGB8 color, 16-bit depth, no stencil,
         // supporting OpenGL ES 2.0 or later backwards-compatible versions.
         setEGLConfigChooser(8, 8, 8, 0, 16, 0);
@@ -50,10 +57,17 @@ class GLES3JNIView extends GLSurfaceView {
 
         public void onSurfaceChanged(GL10 gl, int width, int height) {
             GLES3JNILib.resize(width, height);
+
+
+
+
+
         }
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-            GLES3JNILib.init();
+            GLES3JNILib.init(assetManager);
         }
     }
+
+
 }

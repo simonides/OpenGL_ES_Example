@@ -19,7 +19,7 @@ model {
         CFlags.addAll(["-D KTX_OPENGL_ES2", "-D KTX_OPENGL=0", "-D KTX_OPENGL_ES1=0", "-D KTX_OPENGL_ES3=0"])
         CFlags.add("-I${file("src/main/jni")}".toString())
         cppFlags.add("-I${file("src/main/jni")}".toString())
-        ldLibs.addAll(["log","GLESv3", "EGL"])
+        ldLibs.addAll(["log","GLESv3", "EGL" ,"android"])
         stl         = "gnustl_shared"
 //        stl         = "gnustl_shared"//"stlport_static"
     }

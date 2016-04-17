@@ -15,11 +15,11 @@
 #include "Config.h"
 
 class Camera;
-
+class AAssetManager;
 
 class AppMain {
 public:
-    AppMain();
+    explicit AppMain(AAssetManager* assetManager);
     ~AppMain();
     void Init();
     void Step();
@@ -28,14 +28,13 @@ public:
     void Resize(int w, int h);
 
 private:
-    const EGLContext mEglContext;
+    const EGLContext m_eglContext;
+    AAssetManager* m_assetManager;
 
     Camera* m_camera;
     uint64_t m_LastFrameNs;
 
     //********************************
-//    GLuint vertexbuffer;
-//    GLuint vertexindexbuffer;
 
     int vertexCount = 27;
     int triangleCount = 13;
