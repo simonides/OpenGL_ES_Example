@@ -54,7 +54,6 @@ void AppMain::Init() {
 //
 //
     auto posID = program::Attrib(m_programID, "pos");
-    ALOGD("simon %d", posID);
     glEnableVertexAttribArray(posID);
     glVertexAttribPointer(posID, 3, GL_FLOAT, GL_FALSE, sizeOfVertex, (void *) 0);
 
@@ -84,7 +83,7 @@ void AppMain::Init() {
     //***********************************************************************************************
     assert(m_assetManager != nullptr);
     AAsset *textureAsset = nullptr;
-    const char *textureFileName = "birds.ktx";
+    const char *textureFileName = "Mountain.ktx";
     textureAsset = AAssetManager_open(m_assetManager, textureFileName, AASSET_MODE_BUFFER);
 
     assert(textureAsset != nullptr);
@@ -137,9 +136,6 @@ void AppMain::Step() {
 //        ALOGD("Render...");
         Render();
 //        ALOGD("DONE");
-
-//        ALOGV("indices");
-
     }
 
     m_LastFrameNs = nowNs;
