@@ -85,11 +85,11 @@ void AppMain::Step() {
     if (m_LastFrameNs > 0) {
         float dt = float(nowNs - m_LastFrameNs) * 0.000000001f;
         dt = clamp(dt, 0.0001, 0.5);
-        ALOGD("Update & Render @ %f fps", 1.f/dt);
+//        ALOGD("Update & Render @ %f fps", 1.f/dt);
         Update(dt);
-        ALOGD("Render...");
+//        ALOGD("Render...");
         Render();
-        ALOGD("DONE");
+//        ALOGD("DONE");
     }
 
     m_LastFrameNs = nowNs;
