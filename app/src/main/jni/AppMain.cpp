@@ -22,6 +22,7 @@ AppMain::AppMain() :
         mEglContext(eglGetCurrentContext()),
         degrees(0.f),
         degreesY(0.f),
+        m_LastFrameNs(0),
     m_camera(new Camera())
 {
     Init();
@@ -70,7 +71,7 @@ void AppMain::Init() {
 
 
 void AppMain::Resize(int w, int h) {
-    //ALOGD("Resize called: %d, %d", w,h);
+    ALOGD("Resize called: %d, %d", w,h);
     m_camera->setViewportAspectRatio((float) w / (float) h);
     glViewport(0, 0, w, h);
 }
@@ -80,11 +81,17 @@ void AppMain::Step() {
     clock_gettime(CLOCK_MONOTONIC, &now);
     uint64_t nowNs = now.tv_sec*1000000000ull + now.tv_nsec;
 
+    ALOGD("Step!");
     if (m_LastFrameNs > 0) {
         float dt = float(nowNs - m_LastFrameNs) * 0.000000001f;
+        dt = clamp(dt, 0.0001, 0.5);
+        ALOGD("Update & Render @ %f fps", 1.f/dt);
         Update(dt);
+        ALOGD("Render...");
         Render();
+        ALOGD("DONE");
     }
+
     m_LastFrameNs = nowNs;
 }
 
@@ -93,9 +100,13 @@ void AppMain::Update(float deltaTimeSec) {
     const GLfloat degreesPerSecondY = 30.0f;
     degrees += deltaTimeSec * degreesPerSecond;
     degreesY += deltaTimeSec * degreesPerSecondY;
-    //ALOGD("degrees: %f" , degrees);
-    while(degrees > 360.0f) {degrees -= 360.0f;}
-    while(degreesY > 360.0f) {degreesY -= 360.0f;}
+    ALOGD("degrees: (delta time = %f)  %f / %f" , deltaTimeSec, degrees, degreesY);
+    if(degrees >= 360.0f) {
+        degrees -=   ((int)degrees/360) * 360.f;
+    }
+    if(degreesY >= 360.0f) {
+        degreesY -=   ((int)degreesY/360) * 360.f;
+    }
 
     transform = glm::rotate(glm::mat4(), glm::radians(degrees),  glm::vec3(0,1,0));
     transform = glm::rotate(transform, glm::radians(degreesY), glm::vec3(1,0,0));
@@ -129,24 +140,14 @@ void AppMain::Render() {
 }
 
 
+
 AppMain::~AppMain() {
     ALOGE("Killing AppMain....");
-//    if (vbo) {
-//        glDeleteBuffers(1, &vbo);
-//        vbo = 0;
-//    }
 
-//    if (ubo_) {
-//        glDeleteBuffers(1, &ubo_);
-//        ubo_ = 0;
-//    }
-//    if (ibo_) {
-//        glDeleteBuffers(1, &ibo_);
-//        ibo_ = 0;
-//    }
-//    if (m_programID) {
-//        glDeleteProgram(m_programID);
-//        m_programID = 0;
-//    }
+    glDeleteBuffers(1, &vao);
+    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &vio);
 
+    glDeleteProgram(m_programID);
 }
+
