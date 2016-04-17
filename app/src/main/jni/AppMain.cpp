@@ -33,7 +33,7 @@ AppMain::AppMain() :
 void AppMain::Init() {
     ALOGV("Initializing App...");
 
-    glEnable(GL_CULL_FACE);
+//    glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
 
     m_programID = program::createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
@@ -57,7 +57,7 @@ void AppMain::Init() {
 
     auto colorID = program::Attrib(m_programID, "color");
     glEnableVertexAttribArray(colorID);
-    glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_TRUE, 6*sizeof(GLfloat)
+    glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_FALSE, 6*sizeof(GLfloat)
             , reinterpret_cast<const GLvoid*>(3 * sizeof(GLfloat)));
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vio);
@@ -81,7 +81,7 @@ void AppMain::Step() {
     clock_gettime(CLOCK_MONOTONIC, &now);
     uint64_t nowNs = now.tv_sec*1000000000ull + now.tv_nsec;
 
-    ALOGD("Step!");
+//    ALOGD("Step!");
     if (m_LastFrameNs > 0) {
         float dt = float(nowNs - m_LastFrameNs) * 0.000000001f;
         dt = clamp(dt, 0.0001, 0.5);
@@ -90,6 +90,9 @@ void AppMain::Step() {
 //        ALOGD("Render...");
         Render();
 //        ALOGD("DONE");
+
+//        ALOGV("indices");
+
     }
 
     m_LastFrameNs = nowNs;
@@ -100,7 +103,7 @@ void AppMain::Update(float deltaTimeSec) {
     const GLfloat degreesPerSecondY = 30.0f;
     degrees += deltaTimeSec * degreesPerSecond;
     degreesY += deltaTimeSec * degreesPerSecondY;
-    ALOGD("degrees: (delta time = %f)  %f / %f" , deltaTimeSec, degrees, degreesY);
+//    ALOGD("degrees: (delta time = %f)  %f / %f" , deltaTimeSec, degrees, degreesY);
     if(degrees >= 360.0f) {
         degrees -=   ((int)degrees/360) * 360.f;
     }
@@ -123,18 +126,30 @@ void AppMain::Render() {
 
 
     glUseProgram(m_programID);
+    glBindVertexArray(vao);
 
-    SetUniform(m_programID, "model",        transform ,              false );
-    SetUniform(m_programID, "view",         viewMatrix ,             false );
-    SetUniform(m_programID, "projection",   m_camera->projection() , false  );
+
+    SetUniform(m_programID, "model",      glm::mat4(1.0f), false );
+    SetUniform(m_programID, "view",       glm::mat4(1.0f), false );
+    SetUniform(m_programID, "projection", glm::mat4(1.0f), false );
+    glDrawElements(GL_TRIANGLES,  3  , GL_UNSIGNED_INT, reinterpret_cast<const GLvoid*>(36 * sizeof(GLuint)));
+
+
+
+    SetUniform(m_programID, "model",      transform ,             false );
+    SetUniform(m_programID, "view",       viewMatrix ,            false );
+    SetUniform(m_programID, "projection", m_camera->projection(), false );
 
     glEnableVertexAttribArray(0);
+    //draw cube
+    glDrawElements(GL_TRIANGLES,  triangleCount*3 -3 , GL_UNSIGNED_INT, (void*)0 );
 
-    glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES,  triangleCount*3, GL_UNSIGNED_INT, (void*)0 );
+    glm::mat4 orthoMat = glm::ortho (0.f,100.f,10.f,0.f,0.001f,1000.f);
+//    glm::mat4 Projection = glm::ortho( 0.0f, 800.0f, 600.0f, 0.0f,-5.0f, 5.0f);
+
+//    glm::mat4 Projection = glm::ortho( 0.0f, 800.0f, 600.0f, 0.0f,-5.0f, 5.0f);
+
     glBindVertexArray(0);
-
-
     checkGlError("Renderer::render");
 
 }
