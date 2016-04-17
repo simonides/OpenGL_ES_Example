@@ -10,13 +10,6 @@
 #include "Shader.h"
 #include "Vertices.h"
 
-#include <GLES3/gl3.h>
-#include <glm/gtc/matrix_transform.hpp>
-#include <EGL/egl.h>
-#include <ktx20/ktx.h>
-#include "android/asset_manager.h"
-#include "android/asset_manager_jni.h"
-
 
 using namespace program;
 using namespace ogl;
@@ -37,6 +30,8 @@ AppMain::AppMain(AAssetManager *assetManager) :
 void AppMain::Init() {
     ALOGV("Initializing App...");
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
 
@@ -50,9 +45,7 @@ void AppMain::Init() {
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, vertexCount * sizeOfVertex, cubeColoredVertex, GL_STATIC_DRAW);
-//    glBufferData(GL_ARRAY_BUFFER,   vertexCount * sizeOfVertex, &cubeColoredVertex[0], GL_STATIC_DRAW);
-//
-//
+
     auto posID = program::Attrib(m_programID, "pos");
     glEnableVertexAttribArray(posID);
     glVertexAttribPointer(posID, 3, GL_FLOAT, GL_FALSE, sizeOfVertex, (void *) 0);
@@ -71,45 +64,13 @@ void AppMain::Init() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vio);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangleCount * sizeOfIndexData, cubeIndices,
                  GL_STATIC_DRAW);
-//
-//    glBindBuffer(GL_ARRAY_BUFFER, 0);
-//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
     glBindVertexArray(0);
 
-
-
-
-
-    //***********************************************************************************************
+    //***************LOAD ASSETS************************************************************
     assert(m_assetManager != nullptr);
-    AAsset *textureAsset = nullptr;
-    const char *textureFileName = "Mountain.ktx";
-    textureAsset = AAssetManager_open(m_assetManager, textureFileName, AASSET_MODE_BUFFER);
-
-    assert(textureAsset != nullptr);
-
-    const void *textureData;
-    textureData = AAsset_getBuffer(textureAsset);
-    GLsizei textureDataSize = (GLsizei) AAsset_getLength(textureAsset);
-
-
-    GLboolean isMipmapped;
-    GLenum glResult;
-    KTX_error_code ktxResult;
-
-// This call is really needed twice, or otherwise the creation of the texture won't work when the surface is recreated.
-    ktxResult = ktxLoadTextureM(textureData, textureDataSize, &textureHandle, &textureTarget, NULL,
-                                &isMipmapped, &glResult, 0, NULL);
-    ktxResult = ktxLoadTextureM(textureData, textureDataSize, &textureHandle, &textureTarget, NULL,
-                                &isMipmapped, &glResult, 0, NULL);
-
-    ALOGV("Texture handle id: %d enum: %d", textureHandle, textureTarget);
-    if (ktxResult != KTX_SUCCESS) {
-        ALOGE("KTXLib couldn't load texture %s. Error: %d", textureFileName, ktxResult);
-        assert(false);
-    }
-
-    AAsset_close(textureAsset);
+    m_backgroundTex = texture::LoadTextureFromAssetManager(m_assetManager,"Mountain.ktx");
+    m_birdTex = texture::LoadTextureFromAssetManager(m_assetManager,"birds.ktx");
 
     //***********************************************************************************************
     ALOGV("Initializing App finished.");
@@ -171,8 +132,8 @@ void AppMain::Render() {
     glUseProgram(m_programID);
     glBindVertexArray(vao);
 
-    //todo extract
-    glBindTexture(textureTarget, textureHandle);
+    m_backgroundTex.BindTexture();
+
     GLuint TextureID  = glGetUniformLocation(m_programID, "textureSampler");
     // Set our "myTextureSampler" sampler to user Texture Unit 0
     glUniform1i(TextureID, 0);
@@ -190,8 +151,18 @@ void AppMain::Render() {
     SetUniform(m_programID, "view", viewMatrix, false);
     SetUniform(m_programID, "projection", m_camera->projection(), false);
 
-    glDrawElements(GL_TRIANGLES, triangleCount * 3 - 3, GL_UNSIGNED_INT, (void *) 0);
+    glDrawElements(GL_TRIANGLES, cubeTriangleCount * 3, GL_UNSIGNED_INT, (void *) 0);
 
+    m_birdTex.BindTexture();
+//    TextureID  = glGetUniformLocation(m_programID, "textureSampler");
+//     Set our "myTextureSampler" sampler to user Texture Unit 0
+//    glUniform1i(TextureID, 0);
+
+    SetUniform(m_programID, "model", glm::mat4(1.0f), false);
+//    SetUniform(m_programID, "view", glm::mat4(1.0f), false);
+//    SetUniform(m_programID, "projection", glm::mat4(1.0f), false);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT,
+                   reinterpret_cast<const GLvoid *>(39 * sizeof(GLuint)));
 
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);

@@ -13,6 +13,7 @@
 #include <glm/detail/type_mat4x4.hpp>
 #include <EGL/egl.h>
 #include "Config.h"
+#include "Texture.h"
 
 class Camera;
 class AAssetManager;
@@ -36,8 +37,12 @@ private:
 
     //********************************
 
-    int vertexCount = 27;
-    int triangleCount = 13;
+    //int vertexCountCube = 24;
+
+    int vertexCount = 30;
+    int triangleCount = 12 + 1 + 1; // cube + background + bird
+    int cubeTriangleCount = 12;
+
     int sizeOfVertex = 8* sizeof(GLfloat);
     int sizeOfIndexData = 3* sizeof(GLuint);
 
@@ -54,8 +59,9 @@ private:
     GLuint vio;
 
 
-    GLuint textureHandle = 0;
-    GLenum textureTarget;
+    Texture m_backgroundTex;
+    Texture m_birdTex;
+
 };
 
 
