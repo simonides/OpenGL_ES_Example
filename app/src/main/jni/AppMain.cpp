@@ -40,7 +40,7 @@ void AppMain::Init() {
     glEnable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
 
-    m_programID = program::createProgram(VERTEX_SHADER, FRAGMENT_SHADER);
+    m_programID = program::createProgram(VERTEX_SHADER_TEX, FRAGMENT_SHADER_TEX);
 
 
     glGenVertexArrays(1, &vao);
@@ -58,16 +58,16 @@ void AppMain::Init() {
     glEnableVertexAttribArray(posID);
     glVertexAttribPointer(posID, 3, GL_FLOAT, GL_FALSE, sizeOfVertex, (void *) 0);
 
-//    auto uvID = program::Attrib(m_programID, "uv");
-//    glEnableVertexAttribArray(uvID);
-//    glVertexAttribPointer(uvID, 2, GL_FLOAT, GL_FALSE, sizeOfVertex
-//            , reinterpret_cast<const GLvoid*>(3 * sizeof(GLfloat)));
+    auto uvID = program::Attrib(m_programID, "vertexUV");
+    glEnableVertexAttribArray(uvID);
+    glVertexAttribPointer(uvID, 2, GL_FLOAT, GL_FALSE, sizeOfVertex
+            , reinterpret_cast<const GLvoid*>(3 * sizeof(GLfloat)));
 
 
-    auto colorID = program::Attrib(m_programID, "color");
-    glEnableVertexAttribArray(colorID);
-    glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_FALSE, sizeOfVertex,
-                          reinterpret_cast<const GLvoid *>(5 * sizeof(GLfloat)));
+//    auto colorID = program::Attrib(m_programID, "color");
+//    glEnableVertexAttribArray(colorID);
+//    glVertexAttribPointer(colorID, 3, GL_FLOAT, GL_FALSE, sizeOfVertex,
+//                          reinterpret_cast<const GLvoid *>(5 * sizeof(GLfloat)));
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vio);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, triangleCount * sizeOfIndexData, cubeIndices,
@@ -84,28 +84,29 @@ void AppMain::Init() {
     //***********************************************************************************************
     assert(m_assetManager != nullptr);
     AAsset *textureAsset = nullptr;
-    const char * textureFileName = "birds.ktx";
-   textureAsset = AAssetManager_open(m_assetManager, textureFileName, AASSET_MODE_BUFFER);
+    const char *textureFileName = "birds.ktx";
+    textureAsset = AAssetManager_open(m_assetManager, textureFileName, AASSET_MODE_BUFFER);
 
     assert(textureAsset != nullptr);
 
-    const void * textureData;
+    const void *textureData;
     textureData = AAsset_getBuffer(textureAsset);
-    GLsizei textureDataSize =(GLsizei) AAsset_getLength(textureAsset);
+    GLsizei textureDataSize = (GLsizei) AAsset_getLength(textureAsset);
 
-    GLuint textureHandle = 0;
-    GLenum textureTarget;
+
     GLboolean isMipmapped;
     GLenum glResult;
     KTX_error_code ktxResult;
 
 // This call is really needed twice, or otherwise the creation of the texture won't work when the surface is recreated.
-    ktxResult = ktxLoadTextureM(textureData, textureDataSize, &textureHandle, &textureTarget, NULL, &isMipmapped, &glResult, 0, NULL);
-    ktxResult = ktxLoadTextureM(textureData, textureDataSize, &textureHandle, &textureTarget, NULL, &isMipmapped, &glResult, 0, NULL);
+    ktxResult = ktxLoadTextureM(textureData, textureDataSize, &textureHandle, &textureTarget, NULL,
+                                &isMipmapped, &glResult, 0, NULL);
+    ktxResult = ktxLoadTextureM(textureData, textureDataSize, &textureHandle, &textureTarget, NULL,
+                                &isMipmapped, &glResult, 0, NULL);
 
-    if( ktxResult != KTX_SUCCESS )
-    {
-        ALOGE( "KTXLib couldn't load texture %s. Error: %d", textureFileName, ktxResult );
+    ALOGV("Texture handle id: %d enum: %d", textureHandle, textureTarget);
+    if (ktxResult != KTX_SUCCESS) {
+        ALOGE("KTXLib couldn't load texture %s. Error: %d", textureFileName, ktxResult);
         assert(false);
     }
 
@@ -173,6 +174,12 @@ void AppMain::Render() {
 
     glUseProgram(m_programID);
     glBindVertexArray(vao);
+
+    //todo extract
+    glBindTexture(textureTarget, textureHandle);
+    GLuint TextureID  = glGetUniformLocation(m_programID, "textureSampler");
+    // Set our "myTextureSampler" sampler to user Texture Unit 0
+    glUniform1i(TextureID, 0);
 
 
     SetUniform(m_programID, "model", glm::mat4(1.0f), false);

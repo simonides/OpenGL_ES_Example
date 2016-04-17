@@ -11,4 +11,7 @@
 extern const char* VERTEX_SHADER;
 extern const char* FRAGMENT_SHADER;
 
+extern const char* VERTEX_SHADER_TEX;
+extern const char* FRAGMENT_SHADER_TEX;
+
 #endif //OPENGL_ES_EXAMPLE_SHADER_H

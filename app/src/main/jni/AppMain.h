@@ -53,6 +53,9 @@ private:
     GLuint vbo;
     GLuint vio;
 
+
+    GLuint textureHandle = 0;
+    GLenum textureTarget;
 };
 
 
