@@ -20,7 +20,15 @@ AppMain::AppMain(AAssetManager *assetManager) :
         degrees(0.f),
         degreesY(0.f),
         m_LastFrameNs(0),
-        m_camera(new Camera()) {
+        m_camera(new Camera()),
+        bird1Pos(glm::vec3(0)),
+        bird2Pos(glm::vec3(0)),
+        bird3Pos(glm::vec3(0)),
+        bird1Mat(glm::mat4()),
+        bird2Mat(glm::mat4()),
+        bird3Mat(glm::mat4())
+
+{
 
     Init();
 
@@ -120,6 +128,7 @@ void AppMain::Update(float deltaTimeSec) {
     transform = glm::rotate(glm::mat4(), glm::radians(degrees), glm::vec3(0, 1, 0));
     transform = glm::rotate(transform, glm::radians(degreesY), glm::vec3(1, 0, 0));
 
+    bird1Mat = glm::translate(glm::mat4(), bird1Pos);
 }
 
 void AppMain::Render() {
@@ -155,11 +164,20 @@ void AppMain::Render() {
 
     glDrawElements(GL_TRIANGLES, cubeTriangleCount * 3, GL_UNSIGNED_INT, (void *) 0);
 
+    // draw Birds
     m_birdTex.BindTexture();
 
-    SetUniform(m_programID, "model", glm::mat4(1.0f), false);
+    SetUniform(m_programID, "model", bird1Mat, false);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT,
                    reinterpret_cast<const GLvoid *>(39 * sizeof(GLuint)));
+
+    SetUniform(m_programID, "model", bird2Mat, false);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT,
+                   reinterpret_cast<const GLvoid *>(42 * sizeof(GLuint)));
+
+    SetUniform(m_programID, "model", bird3Mat, false);
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT,
+                   reinterpret_cast<const GLvoid *>(45 * sizeof(GLuint)));
 
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);

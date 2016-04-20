@@ -12,6 +12,7 @@
 #include <glm/detail/type_mat.hpp>
 #include <glm/detail/type_mat4x4.hpp>
 #include <EGL/egl.h>
+#include <glm/detail/type_vec3.hpp>
 #include "Config.h"
 #include "Texture.h"
 
@@ -37,8 +38,8 @@ private:
 
     //********************************
 
-    int vertexCount = 30;
-    int triangleCount = 12 + 1 + 1; // cube + background + bird
+    int vertexCount = 36;
+    int triangleCount = 12 + 1 +( 1 + 1 +1); // cube + background + birds
     int cubeTriangleCount = 12;
 
     int sizeOfVertex = 8* sizeof(GLfloat);
@@ -47,6 +48,12 @@ private:
 
     glm::mat4 transform;
 
+    glm::vec3 bird1Pos;
+    glm::mat4 bird1Mat;
+    glm::vec3 bird2Pos;
+    glm::mat4 bird2Mat;
+    glm::vec3 bird3Pos;
+    glm::mat4 bird3Mat;
     //********************************
 
     float degrees;
