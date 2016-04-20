@@ -112,6 +112,13 @@ void AppMain::Step() {
     m_LastFrameNs = nowNs;
 }
 
+////Convenience function that converts the given vectors into a matrice
+//glm::mat4 getTransformMatrix(const glm::vec3 &translation,
+//                             const glm::vec3 &scaling,
+//                             const glm::vec3 &rotationAxis,
+//                             Radians angle) {
+//    return glm::rotate(translate(translation), angle, rotationAxis) * scale(scaling);
+//}
 void AppMain::Update(float deltaTimeSec) {
     const GLfloat degreesPerSecond = 60.0f;
     const GLfloat degreesPerSecondY = 20.0f;
@@ -128,7 +135,13 @@ void AppMain::Update(float deltaTimeSec) {
     transform = glm::rotate(glm::mat4(), glm::radians(degrees), glm::vec3(0, 1, 0));
     transform = glm::rotate(transform, glm::radians(degreesY), glm::vec3(1, 0, 0));
 
-    bird1Mat = glm::translate(glm::mat4(), bird1Pos);
+    bird1Pos.x = -1.5f;
+    bird2Pos.x = 0.f;
+    bird3Pos.x = 1.5f;
+
+    bird1Mat = glm::translate(glm::mat4(), bird1Pos) * glm::scale(glm::mat4(), glm::vec3(0.4f,0.4f,0.4f));
+    bird2Mat = glm::translate(glm::mat4(), bird2Pos) * glm::scale(glm::mat4(), glm::vec3(0.4f,0.4f,0.4f));
+    bird3Mat = glm::translate(glm::mat4(), bird3Pos) * glm::scale(glm::mat4(), glm::vec3(0.4f,0.4f,0.4f));
 }
 
 void AppMain::Render() {
@@ -170,6 +183,7 @@ void AppMain::Render() {
     SetUniform(m_programID, "model", bird1Mat, false);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT,
                    reinterpret_cast<const GLvoid *>(39 * sizeof(GLuint)));
+
 
     SetUniform(m_programID, "model", bird2Mat, false);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT,
