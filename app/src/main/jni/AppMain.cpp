@@ -78,10 +78,9 @@ void AppMain::Init() {
 
     //***************LOAD ASSETS************************************************************
     assert(m_assetManager != nullptr);
-    m_backgroundTex = texture::LoadTextureFromAssetManager(m_assetManager,"Mountain.ktx");
-//    m_backgroundTex = texture::LoadTextureFromAssetManager(m_assetManager,"custom_uv_diag.ktx");
+    m_cubeTex = texture::LoadTextureFromAssetManager(m_assetManager,"Mountain.ktx");
+    m_backgroundTex = texture::LoadTextureFromAssetManager(m_assetManager,"background.ktx");
     m_birdTex = texture::LoadTextureFromAssetManager(m_assetManager,"birds.ktx");
-//    m_birdTex = texture::LoadTextureFromAssetManager(m_assetManager,"custom_uv_diag.ktx");
 
     //***********************************************************************************************
     ALOGV("Initializing App finished.");
@@ -168,7 +167,6 @@ void AppMain::Render() {
     glUseProgram(m_programID);
     glBindVertexArray(vao);
 
-    m_backgroundTex.BindTexture();
 
     GLuint TextureID  = glGetUniformLocation(m_programID, "textureSampler");
     // Set our "myTextureSampler" sampler to user Texture Unit 0
@@ -178,6 +176,9 @@ void AppMain::Render() {
     SetUniform(m_programID, "model", glm::mat4(1.0f), false);
     SetUniform(m_programID, "view", glm::mat4(1.0f), false);
     SetUniform(m_programID, "projection", glm::mat4(1.0f), false);
+
+
+    m_backgroundTex.BindTexture();
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT,
                    reinterpret_cast<const GLvoid *>(36 * sizeof(GLuint)));
 
@@ -187,6 +188,7 @@ void AppMain::Render() {
     SetUniform(m_programID, "view", viewMatrix, false);
     SetUniform(m_programID, "projection", m_camera->projection(), false);
 
+    m_cubeTex.BindTexture();
     glDrawElements(GL_TRIANGLES, cubeTriangleCount * 3, GL_UNSIGNED_INT, (void *) 0);
 
     // draw Birds

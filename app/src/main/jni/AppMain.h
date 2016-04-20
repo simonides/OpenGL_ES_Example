@@ -65,6 +65,7 @@ private:
     GLuint vbo;
     GLuint vio;
 
+    Texture m_cubeTex;
     Texture m_backgroundTex;
     Texture m_birdTex;
 };
