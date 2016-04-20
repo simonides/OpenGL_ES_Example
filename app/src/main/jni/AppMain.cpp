@@ -21,14 +21,15 @@ AppMain::AppMain(AAssetManager *assetManager) :
         degreesY(0.f),
         m_LastFrameNs(0),
         m_camera(new Camera()),
-        bird1Pos(glm::vec3(0)),
-        bird2Pos(glm::vec3(0)),
-        bird3Pos(glm::vec3(0)),
+        bird1Pos(glm::vec3(-1.5, 0, 0)),
+        bird2Pos(glm::vec3(0, 0, 0)),
+        bird3Pos(glm::vec3(1.5, 0, 0)),
         bird1Mat(glm::mat4()),
         bird2Mat(glm::mat4()),
-        bird3Mat(glm::mat4())
-
-{
+        bird3Mat(glm::mat4()) {
+    birdMovementProgress[0] = 0;
+    birdMovementProgress[1] = 0;
+    birdMovementProgress[2] = 0;
 
     Init();
 
@@ -112,6 +113,10 @@ void AppMain::Step() {
     m_LastFrameNs = nowNs;
 }
 
+
+
+
+
 ////Convenience function that converts the given vectors into a matrice
 //glm::mat4 getTransformMatrix(const glm::vec3 &translation,
 //                             const glm::vec3 &scaling,
@@ -135,9 +140,16 @@ void AppMain::Update(float deltaTimeSec) {
     transform = glm::rotate(glm::mat4(), glm::radians(degrees), glm::vec3(0, 1, 0));
     transform = glm::rotate(transform, glm::radians(degreesY), glm::vec3(1, 0, 0));
 
-    bird1Pos.x = -1.5f;
-    bird2Pos.x = 0.f;
-    bird3Pos.x = 1.5f;
+    for(int i=0; i<3; ++i) {
+        birdMovementProgress[i] += deltaTimeSec * (1.5 + i * 0.9);
+        if (birdMovementProgress[i] >= M_PI) {
+            birdMovementProgress[i] -= ((int) birdMovementProgress[i] / M_PI) * M_PI;
+        }
+    }
+
+    bird1Pos.y = sinf(birdMovementProgress[0]) * 3 - 3.8;
+    bird2Pos.y = sinf(birdMovementProgress[1]) * 3 - 3.8;
+    bird3Pos.y = sinf(birdMovementProgress[2]) * 3 - 3.8;
 
     bird1Mat = glm::translate(glm::mat4(), bird1Pos) * glm::scale(glm::mat4(), glm::vec3(0.4f,0.4f,0.4f));
     bird2Mat = glm::translate(glm::mat4(), bird2Pos) * glm::scale(glm::mat4(), glm::vec3(0.4f,0.4f,0.4f));

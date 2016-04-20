@@ -54,6 +54,8 @@ private:
     glm::mat4 bird2Mat;
     glm::vec3 bird3Pos;
     glm::mat4 bird3Mat;
+
+    float birdMovementProgress[3];
     //********************************
 
     float degrees;
