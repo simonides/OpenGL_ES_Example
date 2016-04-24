@@ -44,25 +44,23 @@ AppMain::AppMain(AAssetManager *assetManager)
 void AppMain::Init() {
     ALOGV("Initializing App...");
 
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//    glEnable(GL_CULL_FACE);
-//    glFrontFace(GL_CCW);
-
-//    glDisable(GL_BLEND);
-//    glDisable(GL_CULL_FACE);
-
     glEnable(GL_DEPTH_TEST);
     glClearDepthf(1.0);
     glDepthFunc(GL_LESS);
     glClearColor(0.5f, 0.5f, 0.9f, 1.0f);
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CCW);
+
     m_programID = program::createProgram(VERTEX_SHADER_TEX, FRAGMENT_SHADER_TEX);
 
-//    model = loadModel("Cube.obj");
+    // model = loadModel("girl.obj");
     model = loadModel("LowPolyFighter.obj");
     ALOGV("Model loaded");
     modelAsset = new ModelAsset(m_programID, *model);
+    ALOGD("Model Asset ready");
 
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -78,8 +76,7 @@ void AppMain::Init() {
 
     auto uvID = program::Attrib(m_programID, "vertexUV");
     glEnableVertexAttribArray(uvID);
-    glVertexAttribPointer(uvID, 2, GL_FLOAT, GL_FALSE, sizeOfVertex
-            , reinterpret_cast<const GLvoid*>(3 * sizeof(GLfloat)));
+    glVertexAttribPointer(uvID, 2, GL_FLOAT, GL_FALSE, sizeOfVertex, reinterpret_cast<const GLvoid*>(3 * sizeof(GLfloat)));
 
 
 //    auto colorID = program::Attrib(m_programID, "color");
@@ -92,6 +89,8 @@ void AppMain::Init() {
                  GL_STATIC_DRAW);
 
     glBindVertexArray(0);
+
+    glUseProgram(m_programID);
 
     //***************LOAD ASSETS************************************************************
     assert(m_assetManager != nullptr);
@@ -116,15 +115,12 @@ void AppMain::Step() {
     clock_gettime(CLOCK_MONOTONIC, &now);
     uint64_t nowNs = now.tv_sec * 1000000000ull + now.tv_nsec;
 
-//    ALOGD("Step!");
     if (m_LastFrameNs > 0) {
         float dt = float(nowNs - m_LastFrameNs) * 0.000000001f;
         dt = clamp(dt, 0.0001, 0.5);
 //        ALOGD("Update & Render @ %f fps", 1.f/dt);
         Update(dt);
-//        ALOGD("Render...");
         Render();
-//        ALOGD("DONE");
     }
 
     m_LastFrameNs = nowNs;
@@ -132,8 +128,6 @@ void AppMain::Step() {
 
 
 void AppMain::Update(float deltaTimeSec) {
-    //ALOGV("updating");
-
     const GLfloat degreesPerSecond = 60.0f;
     const GLfloat degreesPerSecondY = 20.0f;
     degrees += deltaTimeSec * degreesPerSecond;
@@ -166,8 +160,6 @@ void AppMain::Update(float deltaTimeSec) {
 }
 
 void AppMain::Render() {
-    //ALOGV("rendering");
-
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 viewMatrix = glm::lookAt(m_camera->position(),
@@ -175,31 +167,28 @@ void AppMain::Render() {
                                        m_camera->up());
 
 
-    glUseProgram(m_programID);
     glBindVertexArray(vao);
-
-
     GLuint TextureID  = glGetUniformLocation(m_programID, "textureSampler");
-    // Set our "myTextureSampler" sampler to use Texture Unit 0
-    glUniform1i(TextureID, 0);
-/*
+    glUniform1i(TextureID, 0);  // set to texture unit 0
+
     // draw background
     SetUniform(m_programID, "model", glm::mat4(1.0f), false);
     SetUniform(m_programID, "view", glm::mat4(1.0f), false);
     SetUniform(m_programID, "projection", glm::mat4(1.0f), false);
 
     m_backgroundTex.BindTexture();
-    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT,
-                   reinterpret_cast<const GLvoid *>(36 * sizeof(GLuint)));
+    glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid *>(36 * sizeof(GLuint)));
+    glClear(GL_DEPTH_BUFFER_BIT);   // the background must not occlude any other objects
 
-/*
-    //draw cube
+
+
     SetUniform(m_programID, "model", transform, false);
     SetUniform(m_programID, "view", viewMatrix, false);
     SetUniform(m_programID, "projection", m_camera->projection(), false);
-
-    m_cubeTex.BindTexture();
-    glDrawElements(GL_TRIANGLES, cubeTriangleCount * 3, GL_UNSIGNED_INT, (void *) 0);
+    
+    //draw cube
+//    m_cubeTex.BindTexture();
+//    glDrawElements(GL_TRIANGLES, cubeTriangleCount * 3, GL_UNSIGNED_INT, (void *) 0);
 
     // draw Birds
     m_birdTex.BindTexture();
@@ -213,15 +202,7 @@ void AppMain::Render() {
 
     SetUniform(m_programID, "model", bird3Mat, false);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, reinterpret_cast<const GLvoid *>(45 * sizeof(GLuint)));
-*/
-
-
-
-    glEnableVertexAttribArray(0);
-    glBindVertexArray(0);
-
-
-
+    glClear(GL_DEPTH_BUFFER_BIT);   // the birds must not occlude any other objects
 
     //draw model
     modelAsset->bind();
@@ -232,7 +213,6 @@ void AppMain::Render() {
     m_fighterTex.BindTexture();
     glDrawElements(GL_TRIANGLES, model->triangleCount * 3, GL_UNSIGNED_INT, (void *) 0);
 
-    glEnableVertexAttribArray(0);
     glBindVertexArray(0);
 
     checkGlError("Renderer::render");
@@ -241,7 +221,6 @@ void AppMain::Render() {
 
 AppMain::~AppMain() {
     ALOGE("Killing AppMain....");
-
     glDeleteBuffers(1, &vao);
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &vio);

@@ -4,7 +4,6 @@
 #include <map>
 #include <limits>
 #include <HeaderFiles/Helper.h>
-#include <HeaderFiles/ObjModelLoader.h>
 
 
 ObjModelLoader::ObjModelLoader()
@@ -103,7 +102,6 @@ bool ObjModelLoader::loadData(std::istream& source) {
 					goto fail;
 				}
                 for(int i = 0; i < 3; ++i) {
-//                    for(int i = 2; i >= 0; --i) {
 					source >> triangles[triangleIndex].vertexIndex[i] >> trash >> triangles[triangleIndex].texCoordIndex[i] >> trash >> triangles[triangleIndex].normalIndex[i];
 					// array indices are zero-based, .obj files are one-based:
 					--triangles[triangleIndex].vertexIndex[i];
@@ -161,100 +159,56 @@ bool ObjModelLoader::loadObj(std::istream& source) {
 }
 
 TexturedModel* ObjModelLoader::convertToTexturedModel() const {
-    TexturedModel* model = new TexturedModel(triangleCount*3, triangleCount);
+	std::vector<TexturedVertex> vertexList;		// List of all needed (unique) vertices
+	int* indexList;								// List of indices pointing to the vertexList
+	std::multimap<int, int> mapping;			// mapping[vertexIndex] = [vertexListIndex1, vertexListIndex2, ...]		(one vertex can have multiple (different) texture coordinates and therefore needs to be duplicated)
+	std::multimap<int, int>::iterator it;
+	vertexList.reserve(vertexCount);
+	indexList = new int[triangleCount * 3];
+	assert(indexList != nullptr);
 
+	for(int t = 0; t < triangleCount; ++t) {
+		for(int v = 0; v < 3; ++v) {
+			int vIdx = triangles[t].vertexIndex[v];
+			int texIdx = triangles[t].texCoordIndex[v];
 
-    for(int t = 0; t < triangleCount; ++t) {
-        for(int v = 0; v < 3; ++v) {
-            int idx = t*3 + v;
+			// check if the required position <-> texture combination has already been stored
+			int vertexListIndex = -1;
+			auto vRange = mapping.equal_range(vIdx);
+			for(it = vRange.first; it != vRange.second; ++it) {	// for each stored vertex: does it have the same texture coordinates?
+				int vListIdx = it->second;
+				assert(vListIdx >= 0 && vListIdx < vertexList.size());
+				if(vertexList[vListIdx].tex.x == textureCoords[texIdx].x
+				   && vertexList[vListIdx].tex.y == textureCoords[texIdx].y) {
+					vertexListIndex = vListIdx;
+					break;
+				}
+			}
+			if(vertexListIndex == -1) {	// Add new vertex
+                glm::vec3 pos = vertices[vIdx];
+                glm::vec2 tex = textureCoords[texIdx];
+				vertexList.push_back(TexturedVertex(pos, tex));
+				vertexListIndex = vertexList.size() - 1;
+				mapping.insert(std::make_pair(vIdx, vertexListIndex));
+			}
 
-            int vIdx = triangles[t].vertexIndex[v];
-            int tIdx = triangles[t].texCoordIndex[v];
+			assert(vertexListIndex >= 0 && vertexListIndex < vertexList.size());
+			indexList[t * 3 + v] = vertexListIndex;
+		}
+	}
 
-            model->vertices[idx] = TexturedVertex(vertices[vIdx], textureCoords[tIdx]);
-            model->indices[idx] = idx;
-        }
-    }
+	// Convert into target format:
+	TexturedModel* model = new TexturedModel(vertexList.size(), triangleCount);
+	int idx = 0;
+	for(TexturedVertex& v : vertexList) {
+		model->vertices[idx] = v;
+		++idx;
+	}
 
-
-    return model;
-
-
-
-
-
-
-
-
-
-
-
-
-//
-//
-//
-//
-//
-//	std::vector<TexturedVertex> vertexList;		// List of all needed (unique) vertices
-//	int* indexList;								// List of indices pointing to the vertexList
-//	std::multimap<int, int> mapping;			// mapping[vertexIndex] = [vertexListIndex1, vertexListIndex2, ...]		(one vertex can have multiple (different) texture coordinates and therefore needs to be duplicated)
-//	std::multimap<int, int>::iterator it;
-//	vertexList.reserve(vertexCount);
-//	indexList = new int[triangleCount * 3];
-//	assert(indexList != nullptr);
-//
-//	for(int t = 0; t < triangleCount; ++t) {
-//		for(int v = 0; v < 3; ++v) {
-//			int vIdx = triangles[t].vertexIndex[v];
-//			int texIdx = triangles[t].texCoordIndex[v];
-//
-//			// check if the required position <-> texture combination has already been stored
-//			int vertexListIndex = -1;
-//			auto vRange = mapping.equal_range(vIdx);
-//			for(it = vRange.first; it != vRange.second; ++it) {	// for each stored vertex: does it have the same texture coordinates?
-//				int vListIdx = it->second;
-//				assert(vListIdx >= 0 && vListIdx < vertexList.size());
-//				if(vertexList[vListIdx].tex.x == textureCoords[texIdx].x
-//				   && vertexList[vListIdx].tex.y == textureCoords[texIdx].y) {
-//					vertexListIndex = vListIdx;
-//					break;
-//				}
-//			}
-//			if(vertexListIndex == -1) {	// Add new vertex
-//                glm::vec3 pos = vertices[vIdx];
-//                glm::vec2 tex = textureCoords[texIdx];
-//				vertexList.push_back(TexturedVertex(pos, tex));
-//				vertexListIndex = vertexList.size() - 1;
-//				mapping.insert(std::make_pair(vIdx, vertexListIndex));
-//			}
-//
-//
-////            glm::vec3 pos = vertices[vIdx];
-////            glm::vec2 tex = textureCoords[texIdx];
-////            vertexList.push_back(TexturedVertex(pos, tex));
-////            vertexListIndex = vertexList.size() - 1;
-////            if(vertexListIndex != vIdx) {
-////                ALOGE("FAIL!");
-////                return nullptr;
-////            }
-//
-//			assert(vertexListIndex >= 0 && vertexListIndex < vertexList.size());
-//			indexList[t * 3 + v] = vertexListIndex;
-//		}
-//	}
-//
-//	// Convert into target format:
-//	TexturedModel* model = new TexturedModel(vertexList.size(), triangleCount);
-//	int idx = 0;
-//	for(TexturedVertex& v : vertexList) {
-//		model->vertices[idx] = v;
-//		++idx;
-//	}
-//
-//	memcpy(model->indices, indexList, (triangleCount * 3) * sizeof(*indexList));
-//	assert(model->indices[triangleCount * 3 - 1] == indexList[triangleCount * 3 - 1]);
-//	delete[] indexList;
-//	return model;
+	memcpy(model->indices, indexList, (triangleCount * 3) * sizeof(*indexList));
+	assert(model->indices[triangleCount * 3 - 1] == indexList[triangleCount * 3 - 1]);
+	delete[] indexList;
+	return model;
 }
 
 TexturedModel* ObjModelLoader::loadTexturedModel(std::istream& source) {
