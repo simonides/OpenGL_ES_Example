@@ -52,12 +52,15 @@ void AppMain::Init() {
 //    glDisable(GL_BLEND);
 //    glDisable(GL_CULL_FACE);
 
-
+    glEnable(GL_DEPTH_TEST);
+    glClearDepthf(1.0);
+    glDepthFunc(GL_LESS);
+    glClearColor(0.5f, 0.5f, 0.9f, 1.0f);
 
     m_programID = program::createProgram(VERTEX_SHADER_TEX, FRAGMENT_SHADER_TEX);
 
-    model = loadModel("Cube.obj");
-//    model = loadModel("LowPolyFighter.obj");
+//    model = loadModel("Cube.obj");
+    model = loadModel("LowPolyFighter.obj");
     ALOGV("Model loaded");
     modelAsset = new ModelAsset(m_programID, *model);
 
@@ -165,7 +168,6 @@ void AppMain::Update(float deltaTimeSec) {
 void AppMain::Render() {
     //ALOGV("rendering");
 
-    glClearColor(0.5f, 0.5f, 0.55f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 viewMatrix = glm::lookAt(m_camera->position(),
@@ -180,7 +182,7 @@ void AppMain::Render() {
     GLuint TextureID  = glGetUniformLocation(m_programID, "textureSampler");
     // Set our "myTextureSampler" sampler to use Texture Unit 0
     glUniform1i(TextureID, 0);
-
+/*
     // draw background
     SetUniform(m_programID, "model", glm::mat4(1.0f), false);
     SetUniform(m_programID, "view", glm::mat4(1.0f), false);
