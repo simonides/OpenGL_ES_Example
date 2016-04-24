@@ -12,12 +12,11 @@ ModelAsset::ModelAsset(GLuint programId, TexturedModel& model){
 
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
     glBufferData(GL_ARRAY_BUFFER, model.vertexCount * sizeof(TexturedVertex), model.vertices, GL_STATIC_DRAW);
 
     GLint posID = program::Attrib(programId, "pos");
     glEnableVertexAttribArray(posID);
-    glVertexAttribPointer(posID, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), nullptr);
+    glVertexAttribPointer(posID, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void *) 0);
 
     GLint uvID = program::Attrib(programId, "vertexUV");
     glEnableVertexAttribArray(uvID);

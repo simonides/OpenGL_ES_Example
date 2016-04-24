@@ -44,14 +44,20 @@ AppMain::AppMain(AAssetManager *assetManager)
 void AppMain::Init() {
     ALOGV("Initializing App...");
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_CULL_FACE);
-    glFrontFace(GL_CCW);
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//    glEnable(GL_CULL_FACE);
+//    glFrontFace(GL_CCW);
+
+//    glDisable(GL_BLEND);
+//    glDisable(GL_CULL_FACE);
+
+
 
     m_programID = program::createProgram(VERTEX_SHADER_TEX, FRAGMENT_SHADER_TEX);
 
     model = loadModel("Cube.obj");
+//    model = loadModel("LowPolyFighter.obj");
     ALOGV("Model loaded");
     modelAsset = new ModelAsset(m_programID, *model);
 
@@ -86,10 +92,10 @@ void AppMain::Init() {
 
     //***************LOAD ASSETS************************************************************
     assert(m_assetManager != nullptr);
-    m_cubeTex = texture::LoadTextureFromAssetManager(m_assetManager,"Mountain.ktx");
-    m_backgroundTex = texture::LoadTextureFromAssetManager(m_assetManager,"background.ktx");
-    m_birdTex = texture::LoadTextureFromAssetManager(m_assetManager,"birds.ktx");
-    m_fighterTex = texture::LoadTextureFromAssetManager(m_assetManager,"Fighter.ktx");
+    m_cubeTex = texture::LoadTextureFromAssetManager(m_assetManager, "Mountain.ktx");
+    m_backgroundTex = texture::LoadTextureFromAssetManager(m_assetManager, "background.ktx");
+    m_birdTex = texture::LoadTextureFromAssetManager(m_assetManager, "birds.ktx");
+    m_fighterTex = texture::LoadTextureFromAssetManager(m_assetManager, "Fighter.ktx");
 
     //***********************************************************************************************
     ALOGV("Initializing App finished.");
@@ -215,8 +221,8 @@ void AppMain::Render() {
 
 
 
-    modelAsset->bind();
     //draw model
+    modelAsset->bind();
     SetUniform(m_programID, "model", transform, false);
     SetUniform(m_programID, "view", viewMatrix, false);
     SetUniform(m_programID, "projection", m_camera->projection(), false);
