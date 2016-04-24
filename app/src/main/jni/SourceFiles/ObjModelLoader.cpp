@@ -57,9 +57,9 @@ void ObjModelLoader::loadCounts(std::istream& source) {
 bool ObjModelLoader::loadData(std::istream& source) {
 	assert(vertices == nullptr && textureCoords == nullptr && normals == nullptr && triangles == nullptr && "Internal storage structures not empty");
 
-	vertices = new vec3[vertexCount];
-	textureCoords = new vec2[textureCoordCount];
-	normals = new vec3[normalCount];
+	vertices = new glm::vec3[vertexCount];
+	textureCoords = new glm::vec2[textureCoordCount];
+	normals = new glm::vec3[normalCount];
 	triangles = new TriangleType[triangleCount];
 	assert(vertices != nullptr);
 	assert(textureCoords != nullptr);
@@ -185,12 +185,23 @@ TexturedModel* ObjModelLoader::convertToTexturedModel() const {
 				}
 			}
 			if(vertexListIndex == -1) {	// Add new vertex
-				vec3 pos = vertices[vIdx];
-				vec2 tex = textureCoords[texIdx];
+                glm::vec3 pos = vertices[vIdx];
+                glm::vec2 tex = textureCoords[texIdx];
 				vertexList.push_back(TexturedVertex(pos, tex));
 				vertexListIndex = vertexList.size() - 1;
 				mapping.insert(std::make_pair(vIdx, vertexListIndex));
 			}
+
+
+//            glm::vec3 pos = vertices[vIdx];
+//            glm::vec2 tex = textureCoords[texIdx];
+//            vertexList.push_back(TexturedVertex(pos, tex));
+//            vertexListIndex = vertexList.size() - 1;
+//            if(vertexListIndex != vIdx) {
+//                ALOGE("FAIL!");
+//                return nullptr;
+//            }
+
 			assert(vertexListIndex >= 0 && vertexListIndex < vertexList.size());
 			indexList[t * 3 + v] = vertexListIndex;
 		}

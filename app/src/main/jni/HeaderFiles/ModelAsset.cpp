@@ -17,7 +17,7 @@ ModelAsset::ModelAsset(GLuint programId, TexturedModel& model){
 
     GLint posID = program::Attrib(programId, "pos");
     glEnableVertexAttribArray(posID);
-    glVertexAttribPointer(posID, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), (void *) 0);
+    glVertexAttribPointer(posID, 3, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), nullptr);
 
     GLint uvID = program::Attrib(programId, "vertexUV");
     glEnableVertexAttribArray(uvID);

@@ -15,9 +15,9 @@ class ObjModelLoader {
 	} TriangleType;
 
 	// data loaded from .obj file
-	Vector3f* vertices;
-	Vector2f* textureCoords;
-	Vector3f* normals;
+	glm::vec3* vertices;
+	glm::vec2* textureCoords;
+	glm::vec3* normals;
 	TriangleType* triangles;
 
 	ObjModelLoader();

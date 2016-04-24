@@ -44,14 +44,14 @@ AppMain::AppMain(AAssetManager *assetManager)
 void AppMain::Init() {
     ALOGV("Initializing App...");
 
-    //glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
 
     m_programID = program::createProgram(VERTEX_SHADER_TEX, FRAGMENT_SHADER_TEX);
 
-    model = loadModel("LowPolyFighter.obj");
+    model = loadModel("Cube.obj");
     ALOGV("Model loaded");
     modelAsset = new ModelAsset(m_programID, *model);
 
@@ -223,7 +223,6 @@ void AppMain::Render() {
 
     m_fighterTex.BindTexture();
     glDrawElements(GL_TRIANGLES, model->triangleCount * 3, GL_UNSIGNED_INT, (void *) 0);
-
 
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
