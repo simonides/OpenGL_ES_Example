@@ -6,8 +6,8 @@
 #include <assert.h>
 #include <GLES3/gl3.h>
 #include <ktx20/ktx.h>
-#include "Texture.h"
-#include "Helper.h"
+#include "../HeaderFiles/Texture.h"
+#include "../HeaderFiles/Helper.h"
 
 Texture texture::LoadTextureFromAssetManager(AAssetManager *assetManager, const char *fileName) {
 

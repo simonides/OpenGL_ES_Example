@@ -1,8 +1,8 @@
 //
 // Created by Simon on 15.04.2016.
 //
-#include "Shader.h"
-#include "Helper.h"
+#include "../HeaderFiles/Shader.h"
+#include "../HeaderFiles/Helper.h"
 
 #define POS_ATTRIB 0
 #define COLOR_ATTRIB 1

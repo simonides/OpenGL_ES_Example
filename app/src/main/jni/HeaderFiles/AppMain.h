@@ -15,6 +15,8 @@
 #include <glm/detail/type_vec3.hpp>
 #include "Config.h"
 #include "Texture.h"
+#include "utils.h"
+#include "ModelAsset.h"
 
 class Camera;
 class AAssetManager;
@@ -30,6 +32,12 @@ public:
     void Resize(int w, int h);
 
 private:
+    TexturedModel* loadModel(const char* path);
+
+    TexturedModel* model;
+    ModelAsset* modelAsset;
+
+
     const EGLContext m_eglContext;
     AAssetManager* m_assetManager;
 

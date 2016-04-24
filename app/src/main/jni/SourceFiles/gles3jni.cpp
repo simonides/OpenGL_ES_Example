@@ -5,10 +5,10 @@
 //#include <time.h>
 //#include <glm/gtc/type_ptr.hpp>
 
-#include "Helper.h"
-#include "gles3jni.h"
-#include "Program.h"
-#include "AppMain.h"
+#include "../HeaderFiles/Helper.h"
+#include "../HeaderFiles/gles3jni.h"
+#include "../HeaderFiles/Program.h"
+#include "../HeaderFiles/AppMain.h"
 
 using namespace program;
 

@@ -2,8 +2,8 @@
 // Created by Simon on 15.04.2016.
 //
 
-#include "Program.h"
-#include "Helper.h"
+#include "../HeaderFiles/Program.h"
+#include "../HeaderFiles/Helper.h"
 
 #include <assert.h>
 #include <glm/gtc/type_ptr.hpp>

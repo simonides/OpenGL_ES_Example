@@ -2,7 +2,7 @@
 // Created by Simon on 15.04.2016.
 //
 
-#include "Vertices.h"
+#include "../HeaderFiles/Vertices.h"
 
 
 const GLfloat cubeColoredVertex[] = {
