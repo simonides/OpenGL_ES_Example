@@ -17,6 +17,8 @@ class ModelAsset {
 public:
     ModelAsset(GLuint programId, TexturedModel& model);
     ~ModelAsset();
+
+    void bind();
 };
 
 

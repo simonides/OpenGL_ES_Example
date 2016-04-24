@@ -44,14 +44,14 @@ AppMain::AppMain(AAssetManager *assetManager)
 void AppMain::Init() {
     ALOGV("Initializing App...");
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_CULL_FACE);
     glFrontFace(GL_CCW);
 
     m_programID = program::createProgram(VERTEX_SHADER_TEX, FRAGMENT_SHADER_TEX);
 
-    model = loadModel("Cube.obj");
+    model = loadModel("LowPolyFighter.obj");
     ALOGV("Model loaded");
     modelAsset = new ModelAsset(m_programID, *model);
 
@@ -89,6 +89,7 @@ void AppMain::Init() {
     m_cubeTex = texture::LoadTextureFromAssetManager(m_assetManager,"Mountain.ktx");
     m_backgroundTex = texture::LoadTextureFromAssetManager(m_assetManager,"background.ktx");
     m_birdTex = texture::LoadTextureFromAssetManager(m_assetManager,"birds.ktx");
+    m_fighterTex = texture::LoadTextureFromAssetManager(m_assetManager,"Fighter.ktx");
 
     //***********************************************************************************************
     ALOGV("Initializing App finished.");
@@ -214,17 +215,18 @@ void AppMain::Render() {
 
 
 
-
-
+    modelAsset->bind();
     //draw model
-//    SetUniform(m_programID, "model", transform, false);
-//    SetUniform(m_programID, "view", viewMatrix, false);
-//    SetUniform(m_programID, "projection", m_camera->projection(), false);
-//
-//    m_cubeTex.BindTexture();
-//    glDrawElements(GL_TRIANGLES, model->triangleCount * 3, GL_UNSIGNED_INT, (void *) 0);
+    SetUniform(m_programID, "model", transform, false);
+    SetUniform(m_programID, "view", viewMatrix, false);
+    SetUniform(m_programID, "projection", m_camera->projection(), false);
+
+    m_fighterTex.BindTexture();
+    glDrawElements(GL_TRIANGLES, model->triangleCount * 3, GL_UNSIGNED_INT, (void *) 0);
 
 
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
 
     checkGlError("Renderer::render");
 }

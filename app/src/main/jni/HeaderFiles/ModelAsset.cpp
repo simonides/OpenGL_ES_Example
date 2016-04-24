@@ -34,3 +34,7 @@ ModelAsset::~ModelAsset() {
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &vio);
 }
+
+void ModelAsset::bind() {
+    glBindVertexArray(vao);
+}

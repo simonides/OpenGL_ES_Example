@@ -76,6 +76,7 @@ private:
     Texture m_cubeTex;
     Texture m_backgroundTex;
     Texture m_birdTex;
+    Texture m_fighterTex;
 };
 
 
