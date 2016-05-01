@@ -13,7 +13,7 @@ struct TexturedVertex {
 	TexturedVertex() : pos(), tex() {};
 	TexturedVertex(glm::vec3 pos, glm::vec2 tex) : pos(pos), tex(tex) {}
 };
-
+/*
 struct TexturedModel {
 	int vertexCount;
 	int triangleCount;
@@ -34,4 +34,4 @@ struct TexturedModel {
 		delete indices;
 	}
 };
-
+*/

@@ -1,10 +1,9 @@
-#include "../HeaderFiles/ObjModelLoader.h"
 #include <cassert>
 #include <vector>
 #include <map>
 #include <limits>
 #include <HeaderFiles/Helper.h>
-
+#include "HeaderFiles/ObjModelLoader.h"
 
 ObjModelLoader::ObjModelLoader()
 	: vertexCount(0)
@@ -185,8 +184,8 @@ TexturedModel* ObjModelLoader::convertToTexturedModel() const {
 				}
 			}
 			if(vertexListIndex == -1) {	// Add new vertex
-                glm::vec3 pos = vertices[vIdx];
-                glm::vec2 tex = textureCoords[texIdx];
+				glm::vec3 pos = vertices[vIdx];
+				glm::vec2 tex = textureCoords[texIdx];
 				vertexList.push_back(TexturedVertex(pos, tex));
 				vertexListIndex = vertexList.size() - 1;
 				mapping.insert(std::make_pair(vIdx, vertexListIndex));
@@ -198,36 +197,36 @@ TexturedModel* ObjModelLoader::convertToTexturedModel() const {
 	}
 
 	// Convert into target format:
-	TexturedModel* model = new TexturedModel(vertexList.size(), triangleCount);
+	TexturedModel* model = TexturedModel::newModel(vertexList.size(), triangleCount * 3);
 	int idx = 0;
 	for(TexturedVertex& v : vertexList) {
 		model->vertices[idx] = v;
 		++idx;
 	}
 
-	memcpy(model->indices, indexList, (triangleCount * 3) * sizeof(*indexList));
+	memcpy(&(model->indices[0]), indexList, (triangleCount * 3) * sizeof(*indexList));
 	assert(model->indices[triangleCount * 3 - 1] == indexList[triangleCount * 3 - 1]);
 	delete[] indexList;
 	return model;
 }
 
 TexturedModel* ObjModelLoader::loadTexturedModel(std::istream& source) {
-	ObjModelLoader modelLoader;
+    ObjModelLoader modelLoader;
 
-	bool success = modelLoader.loadObj(source);
-	assert(success && "Failed to load model");
-	if(!success) {
-		return nullptr;
-	}
+    bool success = modelLoader.loadObj(source);
+    assert(success && "Failed to load model");
+    if(!success) {
+        return nullptr;
+    }
 
-	ALOGV("Conveting model data...");
-	TexturedModel* model = modelLoader.convertToTexturedModel();
-//#ifdef _DEBUG
-	if(model != nullptr) {
-		ALOGV("Model:\n"
-			   "\tVertices: %4d\n"
-			   "\tIndices:  %4d (%d triangles)\n", model->vertexCount, model->triangleCount * 3, model->triangleCount);
-	}
-//#endif
-	return model;
+    ALOGV("Conveting model data...\n");
+    TexturedModel* model = modelLoader.convertToTexturedModel();
+    //#ifdef _DEBUG
+    if(model != nullptr) {
+        ALOGV("Model:\n"
+                      "\tVertices: %4d\n"
+                      "\tIndices:  %4d (%d triangles)\n", model->vertexCount, model->indexCount, model->indexCount / 3);
+    }
+    //#endif
+    return model;
 }

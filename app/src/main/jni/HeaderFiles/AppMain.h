@@ -32,7 +32,7 @@ public:
     void Resize(int w, int h);
 
 private:
-    TexturedModel* loadModel(const char* path);
+    TexturedModel* loadModel(const char* path, bool customFormat);
 
     TexturedModel* model;
     ModelAsset* modelAsset;

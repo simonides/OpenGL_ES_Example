@@ -2,8 +2,8 @@
 // Created by Jakob on 24.04.2016.
 //
 
-#include "ModelAsset.h"
-#include "Program.h"
+#include <HeaderFiles/Program.h>
+#include "../HeaderFiles/ModelAsset.h"
 
 ModelAsset::ModelAsset(GLuint programId, TexturedModel& model){
     glGenVertexArrays(1, &vao);
@@ -12,7 +12,7 @@ ModelAsset::ModelAsset(GLuint programId, TexturedModel& model){
 
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, model.vertexCount * sizeof(TexturedVertex), model.vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, model.vertexCount * sizeof(TexturedVertex), &(model.vertices[0]), GL_STATIC_DRAW);
 
     GLint posID = program::Attrib(programId, "pos");
     glEnableVertexAttribArray(posID);
@@ -23,7 +23,7 @@ ModelAsset::ModelAsset(GLuint programId, TexturedModel& model){
     glVertexAttribPointer(uvID, 2, GL_FLOAT, GL_FALSE, sizeof(TexturedVertex), reinterpret_cast<const GLvoid*>(3 * sizeof(GLfloat)));
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vio);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.triangleCount * 3 * sizeof(GLuint), model.indices, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, model.indexCount * sizeof(GLuint), &(model.indices[0]), GL_STATIC_DRAW);
 
     glBindVertexArray(0);
 }

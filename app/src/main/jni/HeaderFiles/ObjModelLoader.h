@@ -1,6 +1,7 @@
 #pragma once
 #include <istream>
 #include "utils.h"
+#include "ModelLoader.h"
 
 class ObjModelLoader {
 	int vertexCount;

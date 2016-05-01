@@ -8,6 +8,7 @@
 
 #include <GLES3/gl3.h>
 #include "utils.h"
+#include "ModelLoader.h"
 
 class ModelAsset {
     GLuint vao;

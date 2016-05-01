@@ -4,12 +4,11 @@
 
 #include "../HeaderFiles/ObjModelLoader.h"
 #include <time.h>
+#include <fstream>
 #include <android/asset_manager.h>
-#include <sstream>
 #include "../HeaderFiles/AppMain.h"
 #include "../HeaderFiles/Camera.h"
 #include "../HeaderFiles/Program.h"
-#include "../HeaderFiles/Helper.h"
 #include "../HeaderFiles/Shader.h"
 #include "../HeaderFiles/Vertices.h"
 
@@ -57,8 +56,26 @@ void AppMain::Init() {
     m_programID = program::createProgram(VERTEX_SHADER_TEX, FRAGMENT_SHADER_TEX);
 
     // model = loadModel("girl.obj");
-    model = loadModel("LowPolyFighter.obj");
+//    model = loadModel("LowPolyFighter.obj", false);
+    model = loadModel("LowPolyFighter.bin", true);
     ALOGV("Model loaded");
+
+    ALOGE("Model:\n"
+                   "\tVertices: %4d\n"
+                   "\tIndices:  %4d (%d triangles)\n", model->vertexCount, model->indexCount, model->indexCount / 3);
+
+
+    for(int t = 0; t < model->indexCount/3; ++t) {
+        for(int v = 0; v < 3; ++v) {
+            int vIdx = model->indices[t * 3 + v];
+            glm::vec3 pos = model->vertices[vIdx].pos;
+            glm::vec2 tex = model->vertices[vIdx].tex;
+            ALOGE(" (%3d) [%5.2f / %5.2f / %5.2f]  [%5.2f/%5.2f]\n", vIdx, pos.x, pos.y, pos.z, tex.x, tex.y);
+        }
+        ALOGE("--------------------------------------\n");
+    }
+
+
     modelAsset = new ModelAsset(m_programID, *model);
     ALOGD("Model Asset ready");
 
@@ -185,7 +202,7 @@ void AppMain::Render() {
     SetUniform(m_programID, "model", transform, false);
     SetUniform(m_programID, "view", viewMatrix, false);
     SetUniform(m_programID, "projection", m_camera->projection(), false);
-    
+
     //draw cube
 //    m_cubeTex.BindTexture();
 //    glDrawElements(GL_TRIANGLES, cubeTriangleCount * 3, GL_UNSIGNED_INT, (void *) 0);
@@ -211,7 +228,7 @@ void AppMain::Render() {
     SetUniform(m_programID, "projection", m_camera->projection(), false);
 
     m_fighterTex.BindTexture();
-    glDrawElements(GL_TRIANGLES, model->triangleCount * 3, GL_UNSIGNED_INT, (void *) 0);
+    glDrawElements(GL_TRIANGLES, model->indexCount, GL_UNSIGNED_INT, (void *) 0);
 
     glBindVertexArray(0);
 
@@ -228,11 +245,11 @@ AppMain::~AppMain() {
     glDeleteProgram(m_programID);
 
     delete modelAsset;
-    delete model;
+    TexturedModel ::deleteModel(model);
     delete m_camera;
 }
 
-TexturedModel* AppMain::loadModel(const char* path) {
+TexturedModel* AppMain::loadModel(const char* path, bool customFormat) {
     AAsset *modelAsset = nullptr;
     modelAsset = AAssetManager_open(m_assetManager, path, AASSET_MODE_BUFFER);
     if(modelAsset == nullptr) {
@@ -243,5 +260,14 @@ TexturedModel* AppMain::loadModel(const char* path) {
     const char* modelData = static_cast<const char*>(AAsset_getBuffer(modelAsset));
     std::istringstream source(modelData);
 
-    return ObjModelLoader::loadTexturedModel(source);
+    TexturedModel* model;
+    if(customFormat) {
+        model = TexturedModel::load(source);
+    } else {
+        model = ObjModelLoader::loadTexturedModel(source);
+    }
+
+    std::stringstream::pos_type offset = source.tellg();
+    ALOGE("Stream pos: %d", offset);
+    return model;
 }
