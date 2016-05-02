@@ -18,7 +18,7 @@ Camera::Camera() :
         _horizontalAngle(0.0f),
         _verticalAngle(0.0f),
         _position(0.0f, 0.0f, 08.0f),
-        _fieldOfView(50.0f),
+        _fieldOfView(70.0f),
         _nearPlane(0.1f),
         _farPlane(500.0f),
         _viewportAspectRatio(2.0f / 3.0f)

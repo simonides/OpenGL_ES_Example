@@ -146,11 +146,11 @@ bool ObjModelLoader::loadObj(std::istream& source) {
 	int streamPos = source.tellg();
 	loadCounts(source);
 //#ifdef _DEBUG
-	ALOGV("Object file content:\n"
-		   "\tVertices            %4d\n"
-		   "\tTexture coordinates %4d\n"
-		   "\tNormals             %4d\n"
-		   "\tTriangles           %4d\n", vertexCount, textureCoordCount, normalCount, triangleCount);
+//	ALOGV("Object file content:\n"
+//		   "\tVertices            %4d\n"
+//		   "\tTexture coordinates %4d\n"
+//		   "\tNormals             %4d\n"
+//		   "\tTriangles           %4d\n", vertexCount, textureCoordCount, normalCount, triangleCount);
 //#endif
 	source.clear();
 	source.seekg(streamPos);
@@ -219,14 +219,14 @@ TexturedModel* ObjModelLoader::loadTexturedModel(std::istream& source) {
         return nullptr;
     }
 
-    ALOGV("Conveting model data...\n");
+    //ALOGV("Conveting model data...\n");
     TexturedModel* model = modelLoader.convertToTexturedModel();
     //#ifdef _DEBUG
-    if(model != nullptr) {
+    /*if(model != nullptr) {
         ALOGV("Model:\n"
                       "\tVertices: %4d\n"
                       "\tIndices:  %4d (%d triangles)\n", model->vertexCount, model->indexCount, model->indexCount / 3);
-    }
+    }*/
     //#endif
     return model;
 }

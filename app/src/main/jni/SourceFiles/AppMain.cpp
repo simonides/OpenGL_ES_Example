@@ -16,6 +16,9 @@
 using namespace program;
 using namespace ogl;
 
+
+
+
 AppMain::AppMain(AAssetManager *assetManager)
         : m_eglContext(eglGetCurrentContext())
         , m_assetManager(assetManager)
@@ -55,6 +58,42 @@ void AppMain::Init() {
 
     m_programID = program::createProgram(VERTEX_SHADER_TEX, FRAGMENT_SHADER_TEX);
 
+
+    uint64_t diff = 0;
+    for(int i=0; i<100; ++i)
+    {
+        struct timespec time;
+        uint64_t start, end;
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time);
+        start = time.tv_sec * 1000000000ull + time.tv_nsec;
+
+        model = loadModel("LowPolyFighter.obj", false);
+
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time);
+        end = time.tv_sec * 1000000000ull + time.tv_nsec;
+        diff += end - start;
+    }
+    ALOGE("Obj model format:  %fms", (float)(diff/1000)/1000 / 100);
+
+
+    diff = 0;
+    for(int i=0; i<100; ++i)
+    {
+        struct timespec time;
+        uint64_t start, end;
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time);
+        start = time.tv_sec * 1000000000ull + time.tv_nsec;
+
+        loadModel("LowPolyFighter.bin", true);
+
+        clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time);
+        end = time.tv_sec * 1000000000ull + time.tv_nsec;
+        diff += end - start;
+    }
+    ALOGE("Custom model format:  %fms", (float)(diff/1000/1000) / 100);
+
+
+
     // model = loadModel("girl.obj");
 //    model = loadModel("LowPolyFighter.obj", false);
     model = loadModel("LowPolyFighter.bin", true);
@@ -65,7 +104,7 @@ void AppMain::Init() {
                    "\tIndices:  %4d (%d triangles)\n", model->vertexCount, model->indexCount, model->indexCount / 3);
 
 
-    for(int t = 0; t < model->indexCount/3; ++t) {
+    /*for(int t = 0; t < model->indexCount/3; ++t) {
         for(int v = 0; v < 3; ++v) {
             int vIdx = model->indices[t * 3 + v];
             glm::vec3 pos = model->vertices[vIdx].pos;
@@ -73,7 +112,7 @@ void AppMain::Init() {
             ALOGE(" (%3d) [%5.2f / %5.2f / %5.2f]  [%5.2f/%5.2f]\n", vIdx, pos.x, pos.y, pos.z, tex.x, tex.y);
         }
         ALOGE("--------------------------------------\n");
-    }
+    }*/
 
 
     modelAsset = new ModelAsset(m_programID, *model);
@@ -251,7 +290,6 @@ AppMain::~AppMain() {
 
 TexturedModel* AppMain::loadModel(const char* path, bool customFormat) {
     AAsset *modelAsset = nullptr;
-    //AssetManager_open(m_assetManager,path, AASS)
     modelAsset = AAssetManager_open(m_assetManager, path, AASSET_MODE_BUFFER);
     if(modelAsset == nullptr) {
         ALOGE("Failed to open model asset");
@@ -261,11 +299,9 @@ TexturedModel* AppMain::loadModel(const char* path, bool customFormat) {
     const char* modelData = static_cast<const char*>(AAsset_getBuffer(modelAsset));
     int length = AAsset_getLength(modelAsset);
 
-    //
 
     TexturedModel* model;
     if(customFormat) {
-        //model = TexturedModel::load(source);
         model = TexturedModel::load(modelData, length);
     } else {
         std::istringstream source(modelData);

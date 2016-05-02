@@ -50,25 +50,6 @@ public:
         destination.write(reinterpret_cast<const char*>(this), size());
     }
 
-	/*static Model* load(std::istream& source) {
-        ALOGE("%d : %d : %d # %d : %d\n", sizeof(int), sizeof(Model<TexturedVertex>), sizeof(RelativePointer<TexturedVertex>), sizeof(glm::vec3), sizeof(TexturedVertex));
-		size_t size;
-        source >> size;
-        ALOGD("Size: %d", size);
-        char* memory = new char[size];
-        source.read(memory, size);
-
-
-        for(int i=0; i<100; ++i) {
-            ALOGD("%d) %x ", i, memory[i]);
-        }
-
-
-        Model* model = reinterpret_cast<Model*>(memory);
-//        ALOGE("%d / %d\n", sizeof(vertices) + sizeof(indices), sizeof(indices) + model->vertexCount * sizeof(VertexType));
-        return model;
-	}*/
-
     static Model* load(const char* buffer, int size) {
         char* memory = new char[size];
         memcpy(memory, buffer, size);
@@ -77,22 +58,6 @@ public:
         assert(model->size() == size);
         return model;
     }
-
-
-//    static Model* load(const char* buffer, int length) {
-//        size_t size = length;
-//
-//        char* memory = new char[size];
-//        memcpy(memory, buffer, size);
-//
-//        for(int i=0; i<100; ++i) {
-//            ALOGD("%d) %x ", i, memory[i]);
-//        }
-//
-//        Model* model = reinterpret_cast<Model*>(memory);
-////        ALOGE("%d / %d\n", sizeof(vertices) + sizeof(indices), sizeof(indices) + model->vertexCount * sizeof(VertexType));
-//        return model;
-//    }
 };
 
 
