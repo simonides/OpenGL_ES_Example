@@ -40,7 +40,6 @@ class GLES3JNIView extends GLSurfaceView {
 
     public GLES3JNIView(Context context) {
         super(context);
-
         assetManager = context.getAssets();
 
         // Pick an EGLConfig with RGB8 color, 16-bit depth, no stencil,

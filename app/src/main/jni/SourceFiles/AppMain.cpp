@@ -251,6 +251,7 @@ AppMain::~AppMain() {
 
 TexturedModel* AppMain::loadModel(const char* path, bool customFormat) {
     AAsset *modelAsset = nullptr;
+    //AssetManager_open(m_assetManager,path, AASS)
     modelAsset = AAssetManager_open(m_assetManager, path, AASSET_MODE_BUFFER);
     if(modelAsset == nullptr) {
         ALOGE("Failed to open model asset");
@@ -258,16 +259,18 @@ TexturedModel* AppMain::loadModel(const char* path, bool customFormat) {
     }
 
     const char* modelData = static_cast<const char*>(AAsset_getBuffer(modelAsset));
-    std::istringstream source(modelData);
+    int length = AAsset_getLength(modelAsset);
+
+    //
 
     TexturedModel* model;
     if(customFormat) {
-        model = TexturedModel::load(source);
+        //model = TexturedModel::load(source);
+        model = TexturedModel::load(modelData, length);
     } else {
+        std::istringstream source(modelData);
         model = ObjModelLoader::loadTexturedModel(source);
     }
 
-    std::stringstream::pos_type offset = source.tellg();
-    ALOGE("Stream pos: %d", offset);
     return model;
 }
